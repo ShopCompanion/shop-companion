@@ -6,6 +6,21 @@
 
 Get access to largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
 
+__Shops where the add-on currently works:__
+* albamoda.de
+* amazon (non html5 versions)
+* asos
+* deichmann
+* zalando.de
+* zappos.com
+
+__Neglected:__
+* buffalo-shop.de
+* goertz.de
+* nelly
+* net-a-porter.com
+* roland-schuhe.de
+
 ### External links
 
 * [Greasy Fork](https://greasyfork.org/scripts/1678-shop-companion)
