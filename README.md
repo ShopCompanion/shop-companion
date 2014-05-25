@@ -1,6 +1,6 @@
 # [Shop Companion](https://github.com/ShopCompanion/shop-companion)
 
-[![Install](https://raw.github.com/ShopCompanion/shop-companion/github-install-button.jpg)](https://github.com/ShopCompanion/shop-companion/raw/master/shop-companion.user.js)
+[![Install](https://raw.githubusercontent.com/ShopCompanion/shop-companion/master/github-install-button.jpg)](https://github.com/ShopCompanion/shop-companion/raw/master/shop-companion.user.js)
 
 ### Description
 
