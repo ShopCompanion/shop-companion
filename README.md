@@ -19,6 +19,10 @@ __Shops where the add-on currently works:__
 * zappos.com
 * zara.com
 
+### Screenshot
+
+![Shop Companion screenshot](https://raw.githubusercontent.com/ShopCompanion/shop-companion/master/screenshot.png)
+
 ### External links
 
 * [Greasy Fork](https://greasyfork.org/scripts/1678-shop-companion)
