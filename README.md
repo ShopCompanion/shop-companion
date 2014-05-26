@@ -4,22 +4,20 @@
 
 ### Description
 
-Get access to largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
+Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
 
 __Shops where the add-on currently works:__
 * albamoda.de
 * amazon (non html5 versions)
 * asos
-* deichmann
-* zalando.de
-* zappos.com
-
-__Neglected:__
 * buffalo-shop.de
+* deichmann
 * goertz.de
 * nelly
 * net-a-porter.com
-* roland-schuhe.de
+* zalando.de
+* zappos.com
+* zara.com
 
 ### External links
 
