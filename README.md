@@ -10,11 +10,14 @@ __Shops where the add-on currently works:__
 * albamoda.de
 * amazon (non html5 versions)
 * asos
+* bershka
 * buffalo-shop.de
 * deichmann
 * goertz.de
+* hallhuber
 * nelly
 * net-a-porter.com
+* uniqlo
 * zalando.de
 * zappos.com
 * zara.com
@@ -27,6 +30,7 @@ __Shops where the add-on currently works:__
 
 * [Greasy Fork](https://greasyfork.org/scripts/1678-shop-companion)
 * [OpenUserJS](https://openuserjs.org/scripts/shopcompanion/httpwww.evrybase.comaddon/Shop_Companion)
+* [Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/shop-companion/) (light version only)
 
 ### Author
 

@@ -2,7 +2,7 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.9
+// @version        0.10
 // @author         ShopCompanion
 // @icon           data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAO5AAADuQHRCeUsAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAANVQTFRFDwAA8PDw8PDw8PDw8PDw8PDw8PDw8vLy9PT09PT09PT09PT09PT09vb29vb29fX19fX19vb29vb2+Pj4+Pj4+fn5+fn5+Pj4+Pj4+fn5+fn5+fn5+vr6+vr6+vr6+vr6+vr6+vr6+/v7+/v7+/v7+/v7+/v7/Pz8+/v7+/v7+/v7+/v7/Pz8/Pz8/Pz8/Pz8/f39AAAAHh4eZWVla2trbW1tcXFxhYWFjo6OlpaWm5ubqamprKyswMDAwsLCxMTEzMzMzc3N19fX4uLi/f39/v7+////B68tFQAAADF0Uk5TAAMEBQcICQkcHR4fIDg5TVFbXYiKj5KXmJiam6+xvL/AwcPGz9bX19jc3uPj5efo6eeeGU4AAADoSURBVDjLlZPnFoIwDEbjXrj3xL23uPfK+z+SoNATUNrj/Zlcekr6BYDhiRcrzcGgWSkmvPBNKD9ExqggWdq+1ARNTFM+2pdqiA/KE7FKDol01W82c8JVLXTCRj/Q1g5dzwgXrdIKfvouGXVhuzO4v0uy+y0k0RBuaCGp9f1je2HsV4Uc2guYBXD0eULfCVHkCRiDNF/IQIkvlKFOhOVK58yEBrSIwDgwoWcSForOiQh1/h0a4ksKf1M4KOGohY8lfm5hYEjkFGPUqxON3K/Q7mlo9dgfFMLRFPvP4lipSv+snnh57df/BbDVyC03lcMOAAAAAElFTkSuQmCC
 // @license        GNU GPL License
@@ -10,15 +10,18 @@
 // @include        http://www.albamoda.de/*
 // @include        http://www.amazon.tld/*
 // @include        http://www.asos.com/*
+// @include        http://www.bershka.com/*
 // @include        http://www.buffalo-shop.de/*
 // @include        http://buffalo-shop.de/*
 // @include        http://www.deichmann.tld/*
 // @include        http://www.goertz.de/*
+// @include        http://www.hallhuber.com/*
 // @include        http://www.nelly.tld/*
 // @include        http://nelly.tld/*
 // @include        http://nlyman.tld/*
 // @include        http://www.net-a-porter.com/*
 // @include        http://www.roland-schuhe.de/*
+// @include        http://www.uniqlo.tld/*
 // @include        http://www.zalando.de/*
 // @include        http://www.zappos.com/*
 // @include        http://www.zara.com/*
@@ -153,6 +156,23 @@ if( location.href.match(/albamoda/) ){
     }else{
         // console.log('asos non-product page');
     }
+}else if( location.href.match(/bershka/) ){
+	if( $('#tallasdiv') ){
+		console.log('bershka product');
+
+		var html = '';
+		var imagedivs = $("div[id^='superzoom_']").children();
+		for(var i=0; i < imagedivs.length; i++){
+			var link = $(imagedivs[i]).attr('rel');
+
+			html += '<a href="'+link+'">i'+(i+1)+'</a> ';
+		}
+
+		var div = $('#detail_minis');
+		div.after( $.parseHTML( '<div style="float: right; margin-right: 100px;">'+ html_wrapper('XL images: '+ html) +'</div>' ) );
+	}else{
+		console.log('bershka page');
+	}
 
 }else if( location.href.match(/buffalo-shop/) ){
 	var meta_image = get_meta('og:image');
@@ -229,6 +249,30 @@ if( location.href.match(/albamoda/) ){
 		// console.log('goertz page');
 	}
 
+}else if( location.href.match(/hallhuber/) ){
+	if( $('.messages_product_view') ){ // too broad
+		console.log('hallhuber product');
+
+		var html = '';
+		var imagedivs = $('.product-image-gallery').children();
+		for(var i=1; i < imagedivs.length; i++){ // first is same as default: skip
+			var link;
+
+		//	if( imagedivs[i].attr("data-src") ){
+		//		link = imagedivs[i].attr("data-src");
+		//	}else{
+				link = imagedivs[i].src;
+		//	}
+
+			html += '<a href="'+link+'">i'+i+'</a> ';
+		}
+
+		var div = $('.product-collateral');
+		div.append( $.parseHTML( html_wrapper('XL images: '+ html) ) );
+	}else{
+		console.log('hallhuber page');
+	}
+
 }else if( location.href.match(/nelly|nlyman/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
@@ -272,6 +316,19 @@ if( location.href.match(/albamoda/) ){
 		div.append( $.parseHTML( html_wrapper('XL images: '+ html) ) );
 	}else{
 		// console.log('nap page');
+	}
+}else if( location.href.match(/uniqlo/) ){
+	if( $('#prodInfo') ){ // too broad
+		console.log('uniqlo product');
+
+		var html = '';
+		var image = $('#prodImgDefault').find('a').attr('href');
+		html += '<a href="'+image+'">i1</a> ';
+
+		var div = $('#prodSelectAttribute');
+		div.append( $.parseHTML( '<div style="margin: 0 5px 5px;">'+ html_wrapper('XL images: '+ html) +'</div>' ) );
+	}else{
+		console.log('uniqlo page');
 	}
 
 }else if( location.href.match(/zalando/) ){
