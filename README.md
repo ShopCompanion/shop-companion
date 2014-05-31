@@ -18,6 +18,7 @@ __Shops where the add-on currently works:__
 * nelly
 * net-a-porter.com
 * uniqlo
+* yoox.com
 * zalando.de
 * zappos.com
 * zara.com
@@ -26,11 +27,17 @@ __Shops where the add-on currently works:__
 
 ![Shop Companion screenshot](https://raw.githubusercontent.com/ShopCompanion/shop-companion/master/screenshot.png)
 
-### External links
+### Links
+
+Browser extension repositories:
 
 * [Greasy Fork](https://greasyfork.org/scripts/1678-shop-companion)
 * [OpenUserJS](https://openuserjs.org/scripts/shopcompanion/httpwww.evrybase.comaddon/Shop_Companion)
 * [Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/shop-companion/) (light version only)
+
+Public code repository:
+
+* [GitHub](https://github.com/ShopCompanion/shop-companion)
 
 ### Author
 
