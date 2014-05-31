@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
-// @description    Get access to fullresolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.11
+// @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
+// @version        0.12
 // @author         ShopCompanion
 // @icon           data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAO5AAADuQHRCeUsAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAANVQTFRFDwAA8PDw8PDw8PDw8PDw8PDw8PDw8vLy9PT09PT09PT09PT09PT09vb29vb29fX19fX19vb29vb2+Pj4+Pj4+fn5+fn5+Pj4+Pj4+fn5+fn5+fn5+vr6+vr6+vr6+vr6+vr6+vr6+/v7+/v7+/v7+/v7+/v7/Pz8+/v7+/v7+/v7+/v7/Pz8/Pz8/Pz8/Pz8/f39AAAAHh4eZWVla2trbW1tcXFxhYWFjo6OlpaWm5ubqamprKyswMDAwsLCxMTEzMzMzc3N19fX4uLi/f39/v7+////B68tFQAAADF0Uk5TAAMEBQcICQkcHR4fIDg5TVFbXYiKj5KXmJiam6+xvL/AwcPGz9bX19jc3uPj5efo6eeeGU4AAADoSURBVDjLlZPnFoIwDEbjXrj3xL23uPfK+z+SoNATUNrj/Zlcekr6BYDhiRcrzcGgWSkmvPBNKD9ExqggWdq+1ARNTFM+2pdqiA/KE7FKDol01W82c8JVLXTCRj/Q1g5dzwgXrdIKfvouGXVhuzO4v0uy+y0k0RBuaCGp9f1je2HsV4Uc2guYBXD0eULfCVHkCRiDNF/IQIkvlKFOhOVK58yEBrSIwDgwoWcSForOiQh1/h0a4ksKf1M4KOGohY8lfm5hYEjkFGPUqxON3K/Q7mlo9dgfFMLRFPvP4lipSv+snnh57df/BbDVyC03lcMOAAAAAElFTkSuQmCC
 // @license        GNU GPL License
@@ -20,6 +20,8 @@
 // @include        http://nelly.tld/*
 // @include        http://nlyman.tld/*
 // @include        http://www.net-a-porter.com/*
+// @include        http://www.otto.de/*
+// @include       https://www.otto.de/*
 // @include        http://www.roland-schuhe.de/*
 // @include        http://www.uniqlo.tld/*
 // @include        http://www.yoox.com/*
@@ -318,6 +320,20 @@ if( location.href.match(/albamoda/) ){
 	}else{
 		// console.log('nap page');
 	}
+}else if( location.href.match(/otto/) ){	// incomplete, (only first image is on static page); also: not catching variation updates
+	var meta_image = get_meta_name('og:image');
+	if(meta_image){
+		console.log('otto product');
+
+		var id = meta_image.match(/(\d+)\.jpg/);
+		var html = '<a href="https://images.otto.de/is/image/mmo/'+ id[1] +'?scl=1">i1</a> ';
+
+		var div = $('.description');
+		div.append( $.parseHTML( html_wrapper('XL images: '+ html) ) );
+	}else{
+		console.log('otto page');
+	}
+
 }else if( location.href.match(/uniqlo/) ){
 	if( $('#prodInfo') ){ // too broad
 		console.log('uniqlo product');

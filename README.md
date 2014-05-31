@@ -17,6 +17,7 @@ __Shops where the add-on currently works:__
 * hallhuber
 * nelly
 * net-a-porter.com
+* otto.de (partial)
 * uniqlo
 * yoox.com
 * zalando.de
