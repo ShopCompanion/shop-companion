@@ -2,8 +2,9 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.13
+// @version        0.14
 // @author         ShopCompanion
+// @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
 // @icon           data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAO5AAADuQHRCeUsAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAANVQTFRFDwAA8PDw8PDw8PDw8PDw8PDw8PDw8vLy9PT09PT09PT09PT09PT09vb29vb29fX19fX19vb29vb2+Pj4+Pj4+fn5+fn5+Pj4+Pj4+fn5+fn5+fn5+vr6+vr6+vr6+vr6+vr6+vr6+/v7+/v7+/v7+/v7+/v7/Pz8+/v7+/v7+/v7+/v7/Pz8/Pz8/Pz8/Pz8/f39AAAAHh4eZWVla2trbW1tcXFxhYWFjo6OlpaWm5ubqamprKyswMDAwsLCxMTEzMzMzc3N19fX4uLi/f39/v7+////B68tFQAAADF0Uk5TAAMEBQcICQkcHR4fIDg5TVFbXYiKj5KXmJiam6+xvL/AwcPGz9bX19jc3uPj5efo6eeeGU4AAADoSURBVDjLlZPnFoIwDEbjXrj3xL23uPfK+z+SoNATUNrj/Zlcekr6BYDhiRcrzcGgWSkmvPBNKD9ExqggWdq+1ARNTFM+2pdqiA/KE7FKDol01W82c8JVLXTCRj/Q1g5dzwgXrdIKfvouGXVhuzO4v0uy+y0k0RBuaCGp9f1je2HsV4Uc2guYBXD0eULfCVHkCRiDNF/IQIkvlKFOhOVK58yEBrSIwDgwoWcSForOiQh1/h0a4ksKf1M4KOGohY8lfm5hYEjkFGPUqxON3K/Q7mlo9dgfFMLRFPvP4lipSv+snnh57df/BbDVyC03lcMOAAAAAElFTkSuQmCC
 // @license        GNU GPL License
 // @grant          GM_addStyle
@@ -309,15 +310,17 @@ if( location.href.match(/albamoda/) ){
 	if(prodId){
 		console.log('nap product page');
 
-		var html = '<a style="font-size:13px;" href="http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_in_xxl.jpg">1</a> '
-			  +'<a style="font-size:13px;" href="http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_ou_xxl.jpg">2</a> '
-			  +'<a style="font-size:13px;" href="http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_fr_xxl.jpg">3</a> '
-			  +'<a style="font-size:13px;" href="http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_bk_xxl.jpg">4</a> ' // back
-			  +'<a style="font-size:13px;" href="http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_cu_xxl.jpg">5</a> ' // closeup
-			  +'<a style="font-size:13px;" href="http://video.net-a-porter.com/videos/productPage/'+prodId+'_detail.mp4">video</a> ';
+		var elems = [];
+		elems['images'] = [
+			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_in_xxl.jpg', text: 'i1', style: "font-size:13px; margin-right:4px;" },
+			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_ou_xxl.jpg', text: 'i2', style: "font-size:13px; margin-right:4px;" },
+			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_fr_xxl.jpg', text: 'i3', style: "font-size:13px; margin-right:4px;" }, // front
+			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_bk_xxl.jpg', text: 'i4', style: "font-size:13px; margin-right:4px;" }, // back
+			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_cu_xxl.jpg', text: 'i5', style: "font-size:13px; margin-right:4px;" }, // closeup
+			{ href: 'http://video.net-a-porter.com/videos/productPage/'+prodId+'_detail.mp4', text: 'video', style: "font-size:13px" }
+		];
 
-		var div = $('#product-details-container');
-		div.append( $.parseHTML( html_wrapper('XL images: '+ html) ) );
+		$('#product-details-container').append( companion_node(elems) );
 	}else{
 		// console.log('nap page');
 	}
@@ -327,15 +330,17 @@ if( location.href.match(/albamoda/) ){
 
 	var li_array = $('.image-thumbs').children();
 
-	var html = '';
+	var elems = [];
+	elems['images'] = [];
 	for(var i=0; i < li_array.length; i++){
-		var fragment = li_array[i].children[0].getAttribute("data-img-zoom-filename"); // zoom is bigger than gigantic!
-
-		html += '<a href="http://g.nordstromimage.com/imagegallery/store/product/'+fragment+'">i'+(i+1)+'</a> ';
+		var fragment = li_array[i].children[0].getAttribute("data-img-zoom-filename"); // 'zoom' is bigger than 'gigantic'!
+		elems['images'].push({
+			href: "http://g.nordstromimage.com/imagegallery/store/product/"+ fragment,
+			text: "i"+(i+1)
+		});
 	}
 
-	var div = $('#share-buttons');
-	div.append( $.parseHTML( html_wrapper('XL images: '+ html) ) );
+	$('#share-buttons').append( companion_node(elems) );
 
 }else if( location.href.match(/otto/) ){	// incomplete, (only first image is on static page); also: not catching variation updates
 	var meta_image = get_meta_name('og:image');
@@ -479,6 +484,42 @@ function zeroPad(num,count){
 }
 */
 
+function companion_node(elems){
+	console.log(elems);
+	var companion_node = document.createElement('div');
+	companion_node.setAttribute("style", "margin-top: 5px; max-width: 300px; text-align: left;");
+	companion_node.innerHTML =
+	 '	<div style="padding: 3px 5px; border: 1px solid #ccc; border-radius: 5px 5px 0 0; background: #fafafa; color:#468; font-weight: bold;">'
+	+ addon_name
+	+'	</div>'
+	+'	<div style="padding: 5px; border: 1px solid #ccc; border-radius: 0 0 5px 5px; border-top: 0; min-font-size: 1em;">'
+//	+'		<p>Do you...? <a href="#want_it">want it</a> <a href="#have_it">have it</a> <a href="#had_it">had it</a></p>'
+	+'	</div>';
+
+	if(elems['images']){
+		console.log(' has images');
+		console.log( companion_node.children[1] );
+		companion_node.children[1].textContent = 'XL images: ';
+		for(var i = 0; i < elems['images'].length; i++){
+				var link = document.createElement('a');
+				link.setAttribute("href", elems['images'][i]['href']);
+				link.textContent = elems['images'][i]['text'];
+				if(elems['images'][i]['style']){
+					link.setAttribute("style", elems['images'][i]['style']);
+				}else{
+					link.setAttribute("style", "margin-right: 4px;");
+				}
+			companion_node.children[1].appendChild(link);
+			
+		}
+		console.log(companion_node);
+	}
+
+	return companion_node;
+}
+
+
+// experimental low level DOM constructor, only one site/code uses this
 function add_html(parent,children) {
 	console.log(parent);
 	console.log(children);
@@ -514,6 +555,7 @@ function add_html(parent,children) {
 	parent.appendChild(containerdiv);
 }
 
+// legacy HTML combiner, return value is being parsed to a node later
 function html_wrapper(html_to_add){
     return '<div id="shop-companion" style=" margin-top: 5px; max-width: 300px; text-align: left;">'
 	+'	<div style="padding: 3px 5px; border: 1px solid #ccc; border-radius: 5px 5px 0 0; background: #fafafa; color:#468; font-weight: bold;">'
@@ -521,7 +563,7 @@ function html_wrapper(html_to_add){
 	+'	</div>'
 	+'	<div style="padding: 5px; border: 1px solid #ccc; border-radius: 0 0 5px 5px; border-top: 0; min-font-size: 1em;">'
 	+ html_to_add
-//	+'		<p>Do you...? <a href="#want_it">want it</a> <a href="#have_it">own it</a> <a href="#_had_it">had it</a></p>'
+//	+'		<p>Do you...? <a href="#want_it">want it</a> <a href="#have_it">own it</a> <a href="#had_it">had it</a></p>'
 	+'	</div>'
 	+'</div>';
 }
