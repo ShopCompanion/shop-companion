@@ -2,7 +2,7 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.15
+// @version        0.16
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -140,8 +140,8 @@ if( location.href.match(/albamoda/) ){
 			console.log('amazon html5 product page with html4 buyingDetailsGrid layout');
 		//	$('.buyingDetailsGrid tr:last').after('<tr><td>'+ html_wrapper('XL images: '+ 'this is todo') +'</td></tr>');
 		}else{
-			var node = $.parseHTML( html_wrapper('XL images: '+ 'this is todo') );
-			$('#rightCol').append(node);
+		//	var node = $.parseHTML( html_wrapper('XL images: '+ 'this is todo') );
+		//	$('#rightCol').append(node);
 		}
 	}else{
 		console.log('amazon non-product page');
@@ -420,15 +420,22 @@ if( location.href.match(/albamoda/) ){
 	}
 
 }else if( location.href.match(/uniqlo/) ){
-	if( $('#prodInfo') ){ // too broad
+	if( $('#prodInfo') ){ // todo: it's too broad
 		console.log('uniqlo product');
 
-		var html = '';
 		var image = $('#prodImgDefault').find('a').attr('href');
-		html += '<a href="'+image+'">i1</a> ';
 
-		var div = $('#prodSelectAttribute');
-		div.append( $.parseHTML( '<div style="margin: 0 5px 5px;">'+ html_wrapper('XL images: '+ html) +'</div>' ) );
+		var elems	= [];
+		elems['images'] = [
+			{ href: image, text: 'i1' },
+		];
+
+		// we need a wrapper div for alignment
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "margin: 0 5px 5px;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$('#prodSelectAttribute').append( wrapper );
 	}else{
 		console.log('uniqlo page');
 	}
@@ -438,15 +445,26 @@ if( location.href.match(/albamoda/) ){
 		console.log('yoox product');
 
 		var li_array = $('#itemThumbs').children();
-		var html = '';
+
+		var elems	= [];
+		elems['images'] = [];
+
 		for(var i = 0; i < li_array.length; i++){
 			var img = li_array[i].children[0].getAttribute("src");
 			var ilink = img.replace('_9_', '_14_');
-			html += '<a href="'+ ilink +'">i'+ (i+1) +'</a> ';
+
+			elems['images'].push({
+				href: ilink,
+				text: 'i'+(i+1)
+			});
 		}
 
-		var div = $('#itemInfoTab');
-		div.append( $.parseHTML( '<div style="font-size: 1.3em;">'+ html_wrapper('XL images: '+ html) +'</div>' ) );
+		// we need a wrapper div for alignment
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "font-size: 1.3em;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$('#itemInfoTab').append( wrapper );
 	}else{
 		console.log('yoox page');
 	}
@@ -454,42 +472,62 @@ if( location.href.match(/albamoda/) ){
 }else if( location.href.match(/zalando/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		// console.log('zalando product');
+		console.log('zalando product');
       	
-		var list = '';
+		var elems	= [];
+		elems['images'] = [];
+
 		var link = meta_image.replace("/detail/", "/large/");
 		for(var i=1;i<8;i++){
-		   var ilink = link.replace(/@\d/, '@'+ i );
-		   list += '<a href="'+ ilink +'">i'+ i +'</a> ';
+			var ilink = link.replace(/@\d/, '@'+ i );
+
+			elems['images'].push({
+				href: ilink,
+				text: 'i'+i
+			});
 		}
 
-		var div = $('#productDetailsMain');
-		div.append( $.parseHTML( html_wrapper('XL images: '+ list) ) );
+		$('#productDetailsMain').append( companion_node(elems) );
 	}else{
-		// console.log('zalando non-product page');
+		console.log('zalando non-product page');
 	}
 
 }else if( location.href.match(/zappos/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-        	// console.log('zappos product');
+        	console.log('zappos product');
 		var li_array = $('#angles-list').children();
-		console.log(li_array);
+		// console.log(li_array);
 
-		var list = '';
+		var elems	= [];
+		elems['images'] = [];
+
 		for(var i = 0; i < li_array.length; i++){
 			var img = li_array[i].children[0];
 			// console.log(img.getAttribute("href"));
-			list += '<a href="http://a9.zassets.com'+ img.getAttribute("href") +'">i'+ (i+1) +'</a> ';
+
+			elems['images'].push({
+				href: 'http://a9.zassets.com'+ img.getAttribute("href"),
+				text: 'i'+ (i+1)
+			});
 		}
 
 		var video_url = $('#vertical-video').attr('href');
 		if( video_url ){
 			// console.log(video_url);
-			list += '<a href="'+ video_url +'">video</a>';
+
+			elems['images'].push({
+				href: video_url,
+				text: 'video'
+			});
 		}
 
-		$('#productDescription').prepend($.parseHTML( '<div style="float: right; color: #333;">'+ html_wrapper('XL images: '+ list) +'</div>' ));
+		// we need a wrapper div for alignment
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "float: right; color: #333;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$('#productDescription').prepend( wrapper );
 	}else{
 		// console.log('zappos page');
 	}
@@ -498,16 +536,26 @@ if( location.href.match(/albamoda/) ){
 	if( $('.cart-action') ){
 		console.log('zara product');
 
-		var html = '';
+		var elems	= [];
+		elems['images'] = [];
+
 		var imagedivs = $('.bigImageContainer').children();
 		for(var i=0; i < imagedivs.length; i++){
 			var link = $( imagedivs[i] ).find("a").attr("href");
 			if(link.indexOf('.html') >= 1){ break; }
-			html += '<a href="'+link+'">i'+(i+1)+'</a> ';
+
+			elems['images'].push({
+				href: link,
+				text: 'i'+(i+1)
+			});
 		}
 
-		var div = $(".right");
-		div.append( $.parseHTML( '<div style="font-size: 1.3em;">'+  html_wrapper('XL images: '+ html) +'</div>') );
+		// we need a wrapper div for alignment
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "font-size: 1.3em;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$(".right").append( wrapper );
 	}else{
 		console.log('zara page');
 	}
@@ -579,18 +627,4 @@ function companion_node(elems){
 	}
 
 	return companion_node;
-}
-
-
-// legacy HTML combiner, return value is being parsed to a node later
-function html_wrapper(html_to_add){
-    return '<div id="shop-companion" style=" margin-top: 5px; max-width: 300px; text-align: left;">'
-	+'	<div style="padding: 3px 5px; border: 1px solid #ccc; border-radius: 5px 5px 0 0; background: #fafafa; color:#468; font-weight: bold;">'
-	+ addon_name
-	+'	</div>'
-	+'	<div style="padding: 5px; border: 1px solid #ccc; border-radius: 0 0 5px 5px; border-top: 0; min-font-size: 1em;">'
-	+ html_to_add
-//	+'		<p>Do you...? <a href="#want_it">want it</a> <a href="#have_it">own it</a> <a href="#had_it">had it</a></p>'
-	+'	</div>'
-	+'</div>';
 }
