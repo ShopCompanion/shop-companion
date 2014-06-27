@@ -2,7 +2,7 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.16
+// @version        0.17
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -134,9 +134,9 @@ if( location.href.match(/albamoda/) ){
 		}
 
 		$('.buyingDetailsGrid tr:last').after('<tr><td>'+ companion_node(elems).innerHTML +'</td></tr>');
-	}else if( $('#buybox') ){
+	}else if( $('#buybox').length > 0 ){
 		console.log('amazon html5 product page');
-		if( $('.buyingDetailsGrid') ){
+		if( $('.buyingDetailsGrid').length > 0 ){
 			console.log('amazon html5 product page with html4 buyingDetailsGrid layout');
 		//	$('.buyingDetailsGrid tr:last').after('<tr><td>'+ html_wrapper('XL images: '+ 'this is todo') +'</td></tr>');
 		}else{
@@ -184,7 +184,7 @@ if( location.href.match(/albamoda/) ){
 		console.log('asos non-product page');
 	}
 }else if( location.href.match(/bershka/) ){
-	if( $('#tallasdiv') ){
+	if( $('#tallasdiv').length > 0 ){
 		console.log('bershka product');
 
 		var elems	= [];
@@ -307,7 +307,7 @@ if( location.href.match(/albamoda/) ){
 	}
 
 }else if( location.href.match(/hallhuber/) ){
-	if( $('.messages_product_view') ){ // too broad
+	if( $('.messages_product_view').length > 0 ){ // too broad
 		console.log('hallhuber product');
 
 		var elems	= [];
@@ -420,7 +420,7 @@ if( location.href.match(/albamoda/) ){
 	}
 
 }else if( location.href.match(/uniqlo/) ){
-	if( $('#prodInfo') ){ // todo: it's too broad
+	if( $('#prodInfo').length > 0 ){ // todo: it's too broad
 		console.log('uniqlo product');
 
 		var image = $('#prodImgDefault').find('a').attr('href');
