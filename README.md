@@ -6,7 +6,7 @@
 ### Description
 
 Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-This script is available as Greasemonkey Userscript or as native [https://addons.mozilla.org/en-US/firefox/addon/shop-companion/](Firefox Add-On).
+This script is available as Greasemonkey Userscript or as native [Firefox Add-On](https://addons.mozilla.org/en-US/firefox/addon/shop-companion/).
 
 __Shops where the add-on currently works:__
 * albamoda.de
