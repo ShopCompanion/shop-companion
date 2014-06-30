@@ -2,14 +2,14 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.17
+// @version        0.18
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
 // @icon           data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAO5AAADuQHRCeUsAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAANVQTFRFDwAA8PDw8PDw8PDw8PDw8PDw8PDw8vLy9PT09PT09PT09PT09PT09vb29vb29fX19fX19vb29vb2+Pj4+Pj4+fn5+fn5+Pj4+Pj4+fn5+fn5+fn5+vr6+vr6+vr6+vr6+vr6+vr6+/v7+/v7+/v7+/v7+/v7/Pz8+/v7+/v7+/v7+/v7/Pz8/Pz8/Pz8/Pz8/f39AAAAHh4eZWVla2trbW1tcXFxhYWFjo6OlpaWm5ubqamprKyswMDAwsLCxMTEzMzMzc3N19fX4uLi/f39/v7+////B68tFQAAADF0Uk5TAAMEBQcICQkcHR4fIDg5TVFbXYiKj5KXmJiam6+xvL/AwcPGz9bX19jc3uPj5efo6eeeGU4AAADoSURBVDjLlZPnFoIwDEbjXrj3xL23uPfK+z+SoNATUNrj/Zlcekr6BYDhiRcrzcGgWSkmvPBNKD9ExqggWdq+1ARNTFM+2pdqiA/KE7FKDol01W82c8JVLXTCRj/Q1g5dzwgXrdIKfvouGXVhuzO4v0uy+y0k0RBuaCGp9f1je2HsV4Uc2guYBXD0eULfCVHkCRiDNF/IQIkvlKFOhOVK58yEBrSIwDgwoWcSForOiQh1/h0a4ksKf1M4KOGohY8lfm5hYEjkFGPUqxON3K/Q7mlo9dgfFMLRFPvP4lipSv+snnh57df/BbDVyC03lcMOAAAAAElFTkSuQmCC
 // @license        GNU GPL License
 // @grant          GM_addStyle
-// @include        http://www.albamoda.de/*
+// @include        http://*.albamoda.tld/*
 // @include        http://www.amazon.tld/*
 // @include        http://www.asos.com/*
 // @include        http://www.bershka.com/*
@@ -18,6 +18,7 @@
 // @include        http://www.deichmann.tld/*
 // @include        http://www.goertz.de/*
 // @include        http://www.hallhuber.com/*
+// @include        http://www.justfab.tld/*
 // @include        http://www.nelly.tld/*
 // @include        http://nelly.tld/*
 // @include        http://nlyman.tld/*
@@ -32,7 +33,7 @@
 // @include        http://www.zappos.com/*
 // @include        http://www.zara.com/*
 
-// @require      http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js
+// @require        http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js
 
 // ==/UserScript==
 
@@ -332,6 +333,45 @@ if( location.href.match(/albamoda/) ){
 		$('.product-collateral').append( companion_node(elems) );
 	}else{
 		console.log('hallhuber page');
+	}
+
+}else if( location.href.match(/justfab/) ){
+	var meta_image = get_meta('og:image');
+	if(meta_image){
+		console.log('justfab product');
+
+		var elems	= [];
+		elems['images'] = [];
+
+		var imagedivs = [];
+		if( $('.MagicZoomPlusDisabled').length > 0 ){
+			imagedivs = $('.MagicZoomPlusDisabled');
+		}else{
+			imagedivs = $('.MagicZoomPlus');
+		}
+		for(var i=0; i < imagedivs.length; i++){
+			elems['images'].push({
+				href: imagedivs[i].getAttribute("href"),
+				text: 'i'+(i+1)
+			});
+		}
+
+		if( $('#tab_video').length > 0 ){
+			var link = $("#tab_video .video_type > object > embed").attr("src").split('location=');
+			elems['images'].push({
+				href: link[1],
+				text: 'video'
+			});
+		}
+
+		// we need a wrapper div for alignment
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "float: left;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$('#description .details').after( wrapper );
+	}else{
+		console.log('justfab page');
 	}
 
 }else if( location.href.match(/nelly|nlyman/) ){

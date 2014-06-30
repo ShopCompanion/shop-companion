@@ -17,6 +17,7 @@ __Shops where the add-on currently works:__
 * deichmann
 * goertz.de
 * hallhuber
+* justfab
 * nelly
 * net-a-porter.com
 * nordstrom.com
