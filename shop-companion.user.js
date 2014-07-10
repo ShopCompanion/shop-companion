@@ -2,7 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.18
+// @version        0.19
+var version =      0.19;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -33,7 +34,9 @@
 // @include        http://www.zappos.com/*
 // @include        http://www.zara.com/*
 
-// @require        http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js
+// @include        http://www.evrybase.com/shop-companion
+
+// @require        http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 
 // ==/UserScript==
 
@@ -62,7 +65,8 @@
 
 'use strict';
 
-var addon_name = 'Shop Companion';
+var elems	= {}; // Object! for assoc. arrays
+elems['images'] = [];
 
 if( location.href.match(/albamoda/) ){
 	var meta_pagetype = get_meta_name('WT.cg_n');
@@ -70,11 +74,10 @@ if( location.href.match(/albamoda/) ){
 	        console.log('albamoda product');
 
 		var li_array = $('#imgCarousel').children();
-		var elems	= [];
-		elems['images'] = [];
+
 		for(var i = 0; i < li_array.length; i++){
 			elems['images'].push({
-				href: 'http://albamoda.scene7.com/is/image/AlbaModa/AlbaModa?src=mmo/'+ li_array[i].children[0].getAttribute('id') +'&scl=1',
+				url: 'http://albamoda.scene7.com/is/image/AlbaModa/AlbaModa?src=mmo/'+ li_array[i].children[0].getAttribute('id') +'&scl=1',
 				style: 'margin: 0; margin-right: 5px;',
 				text: 'i'+i
 			});
@@ -88,9 +91,6 @@ if( location.href.match(/albamoda/) ){
 }else if( location.href.match(/amazon/) ){
 	if( $('#handleBuy').is("form") ){
 		console.log('amazon product page');
-
-		var elems	= [];
-		elems['images'] = [];
 
 		var items = document.getElementsByTagName("script");
 		var json;
@@ -125,7 +125,7 @@ if( location.href.match(/albamoda/) ){
 				}
 				if(url){
 					elems['images'].push({
-						href: url,
+						url: url,
 						text: 'i'+i
 					});
 				}
@@ -152,13 +152,10 @@ if( location.href.match(/albamoda/) ){
 	var meta_image = get_meta_name('og:image');
 	if(meta_image){
 		console.log('asos product');
-      	
-		var elems	= [];
-		elems['images'] = [];
 
 		var link = meta_image.replace("xl.jpg", "xxl.jpg");
 		elems['images'].push({
-			href: link,
+			url: link,
 			text: 'i1'
 		});
 		
@@ -167,7 +164,7 @@ if( location.href.match(/albamoda/) ){
 		for(var i=2;i<5;i++){
 			var ilink = link.replace("image1", 'image'+ i );
 			elems['images'].push({
-				href: ilink,
+				url: ilink,
 				text: 'i'+i
 			});
 		}
@@ -175,7 +172,7 @@ if( location.href.match(/albamoda/) ){
 		var videolink = document.getElementById('VideoPath').getAttribute('value');
 		if( videolink.indexOf('blank') < 0 ){ // -1 is not found
 			elems['images'].push({
-				href: videolink,
+				url: videolink,
 				text: 'video'
 			});
 		}
@@ -188,15 +185,12 @@ if( location.href.match(/albamoda/) ){
 	if( $('#tallasdiv').length > 0 ){
 		console.log('bershka product');
 
-		var elems	= [];
-		elems['images'] = [];
-
 		var imagedivs = $("div[id^='superzoom_']").children();
 		for(var i=0; i < imagedivs.length; i++){
 			var link = $(imagedivs[i]).attr('rel');
 
 			elems['images'].push({
-				href: link,
+				url: link,
 				text: 'i'+(i+1)
 			});
 		}
@@ -216,17 +210,12 @@ if( location.href.match(/albamoda/) ){
 	if(meta_image){
 		console.log('buffalo product');
 
-		var elem = meta_image.match(/buffalo\/(.+)_0\d\?/);
-		var id = elem[1];
-
-		var elems	= [];
-		elems['images'] = [];
-
-		// bug: always fetches default items images, not current variant
-		for(var i = 1; i < 8; i++){
+		// bug: misses thumbs amended later on via JS
+		var li_array = $('.productthumbnails-list').children();
+		for(var i=0; i < li_array.length; i++){
 			elems['images'].push({
-				href: 'http://buffalo.scene7.com/is/image/buffalo/'+ id +'_0'+ i +'?$zoom$',
-				text: 'i'+ i
+				url: li_array[i].children[0].getAttribute('data-zoomurl'),
+				text: 'i'+ (i+1)
 			});
 		}
 
@@ -247,17 +236,15 @@ if( location.href.match(/albamoda/) ){
 
 		var prod_shop_id = $('#checkedProductCode').attr('value');
 
-		var elems	= [];
-
 		if( location.href.match(/roland/) ){
 			prod_shop_id = prod_shop_id.replace(/^0+100/, ''); // roland ids start with 100.. after zeropadding
 			console.log(prod_shop_id);
 
 			// http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--1234_PS1.jpg
 			elems['images'] = [
-				{ href: 'http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--'+ prod_shop_id +'_PS.jpg', text: 'i1' },
-				{ href: 'http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--'+ prod_shop_id +'_PS1.jpg', text: 'i2' },
-				{ href: 'http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--'+ prod_shop_id +'_PS2.jpg', text: 'i3' },
+				{ url: 'http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--'+ prod_shop_id +'_PS.jpg', text: 'i1' },
+				{ url: 'http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--'+ prod_shop_id +'_PS1.jpg', text: 'i2' },
+				{ url: 'http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--'+ prod_shop_id +'_PS2.jpg', text: 'i3' },
 			];
 		}else{
 			prod_shop_id = prod_shop_id.replace(/^0+/, '');
@@ -265,9 +252,9 @@ if( location.href.match(/albamoda/) ){
 
 			// alt: http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--1234_P.png
 			elems['images'] = [
-				{ href: 'http://deichmann.scene7.com/is/image/deichmann/'+ prod_shop_id +'_P', text: 'i1' },
-				{ href: 'http://deichmann.scene7.com/is/image/deichmann/'+ prod_shop_id +'_P1', text: 'i2' },
-				{ href: 'http://deichmann.scene7.com/is/image/deichmann/'+ prod_shop_id +'_P2', text: 'i3' },
+				{ url: 'http://deichmann.scene7.com/is/image/deichmann/'+ prod_shop_id +'_P', text: 'i1' },
+				{ url: 'http://deichmann.scene7.com/is/image/deichmann/'+ prod_shop_id +'_P1', text: 'i2' },
+				{ url: 'http://deichmann.scene7.com/is/image/deichmann/'+ prod_shop_id +'_P2', text: 'i3' },
 			];
 		}
 
@@ -287,12 +274,11 @@ if( location.href.match(/albamoda/) ){
 	if( id ){
 		console.log('goertz product page');
 
-		var elems	= [];
 		elems['images'] = [
-			{ href: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products', text: 'i1' },	/* tail 2 seems highest resolution */
-			{ href: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products1', text: 'i2' },
-			{ href: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products2', text: 'i3' },
-			{ href: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products3', text: 'i4' },
+			{ url: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products', text: 'i1' },	/* tail 2 seems highest resolution */
+			{ url: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products1', text: 'i2' },
+			{ url: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products2', text: 'i3' },
+			{ url: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products3', text: 'i4' },
 		];
 
 	/*
@@ -311,9 +297,6 @@ if( location.href.match(/albamoda/) ){
 	if( $('.messages_product_view').length > 0 ){ // too broad
 		console.log('hallhuber product');
 
-		var elems	= [];
-		elems['images'] = [];
-
 		var imagedivs = $('.product-image-gallery').children();
 		for(var i=1; i < imagedivs.length; i++){ // first is same as default: skip
 			var link;
@@ -325,7 +308,7 @@ if( location.href.match(/albamoda/) ){
 		//	}
 
 			elems['images'].push({
-				href: link,
+				url: link,
 				text: 'i'+i
 			});
 		}
@@ -340,9 +323,6 @@ if( location.href.match(/albamoda/) ){
 	if(meta_image){
 		console.log('justfab product');
 
-		var elems	= [];
-		elems['images'] = [];
-
 		var imagedivs = [];
 		if( $('.MagicZoomPlusDisabled').length > 0 ){
 			imagedivs = $('.MagicZoomPlusDisabled');
@@ -351,7 +331,7 @@ if( location.href.match(/albamoda/) ){
 		}
 		for(var i=0; i < imagedivs.length; i++){
 			elems['images'].push({
-				href: imagedivs[i].getAttribute("href"),
+				url: imagedivs[i].getAttribute("href"),
 				text: 'i'+(i+1)
 			});
 		}
@@ -359,7 +339,7 @@ if( location.href.match(/albamoda/) ){
 		if( $('#tab_video').length > 0 ){
 			var link = $("#tab_video .video_type > object > embed").attr("src").split('location=');
 			elems['images'].push({
-				href: link[1],
+				url: link[1],
 				text: 'video'
 			});
 		}
@@ -379,23 +359,16 @@ if( location.href.match(/albamoda/) ){
 	if(meta_image){
 		console.log('nelly product page');
 
-	/*	var elem = location.href.split('/');
-		elem.reverse();
-		var idelem = elem[1].match(/(\d+-\d+)/)[0].split('-');
-		var id = idelem[0]+'-'+zeroPad(idelem[1],4);
-	*/
-
 		var elem = meta_image.match(/nlyscandinavia\/([0-9-]+)\?/);
 		var id = elem[1];
 
-		var elems	= [];
 		elems['images'] = [
-			{ href: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_1?$productPress$', text: 'i1', style: 'font-size:13px; margin-right: 3px;' },
-			{ href: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_2?$productPress$', text: 'i2', style: 'font-size:13px; margin-right: 3px;' },
-			{ href: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_3?$productPress$', text: 'i3', style: 'font-size:13px; margin-right: 3px;' },
-			{ href: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_4?$productPress$', text: 'i4', style: 'font-size:13px; margin-right: 3px;' },
-			{ href: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_5?$productPress$', text: 'i5', style: 'font-size:13px; margin-right: 3px;' },
-			{ href: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_video', text: 'video-thumb', style: 'font-size:13px; margin-right: 3px;' },
+			{ url: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_1?$productPress$', text: 'i1', style: 'font-size:13px; margin-right: 3px;' },
+			{ url: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_2?$productPress$', text: 'i2', style: 'font-size:13px; margin-right: 3px;' },
+			{ url: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_3?$productPress$', text: 'i3', style: 'font-size:13px; margin-right: 3px;' },
+			{ url: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_4?$productPress$', text: 'i4', style: 'font-size:13px; margin-right: 3px;' },
+			{ url: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_5?$productPress$', text: 'i5', style: 'font-size:13px; margin-right: 3px;' },
+			{ url: 'http://nlyscandinavia.scene7.com/is/image/nlyscandinavia/'+id+'_video', text: 'video-thumb', style: 'font-size:13px; margin-right: 3px;' },
 			// mp4 video url seems only available via jsonp and level3 cdn; look for picsearch.com /rest ..
 		];
 
@@ -409,14 +382,13 @@ if( location.href.match(/albamoda/) ){
 	if(prodId){
 		console.log('nap product page');
 
-		var elems = [];
 		elems['images'] = [
-			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_in_xxl.jpg', text: 'i1', style: "font-size:13px; margin-right:4px;" },
-			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_ou_xxl.jpg', text: 'i2', style: "font-size:13px; margin-right:4px;" },
-			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_fr_xxl.jpg', text: 'i3', style: "font-size:13px; margin-right:4px;" }, // front
-			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_bk_xxl.jpg', text: 'i4', style: "font-size:13px; margin-right:4px;" }, // back
-			{ href: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_cu_xxl.jpg', text: 'i5', style: "font-size:13px; margin-right:4px;" }, // closeup
-			{ href: 'http://video.net-a-porter.com/videos/productPage/'+prodId+'_detail.mp4', text: 'video', style: "font-size:13px" }
+			{ url: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_in_xxl.jpg', text: 'i1', style: "font-size:13px; margin-right:4px;" },
+			{ url: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_ou_xxl.jpg', text: 'i2', style: "font-size:13px; margin-right:4px;" },
+			{ url: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_fr_xxl.jpg', text: 'i3', style: "font-size:13px; margin-right:4px;" }, // front
+			{ url: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_bk_xxl.jpg', text: 'i4', style: "font-size:13px; margin-right:4px;" }, // back
+			{ url: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_cu_xxl.jpg', text: 'i5', style: "font-size:13px; margin-right:4px;" }, // closeup
+			{ url: 'http://video.net-a-porter.com/videos/productPage/'+prodId+'_detail.mp4', text: 'video', style: "font-size:13px" }
 		];
 
 		$('#product-details-container').append( companion_node(elems) );
@@ -429,13 +401,10 @@ if( location.href.match(/albamoda/) ){
 
 	var li_array = $('.image-thumbs').children();
 
-	var elems	= [];
-	elems['images'] = [];
-
 	for(var i=0; i < li_array.length; i++){
 		var fragment = li_array[i].children[0].getAttribute("data-img-zoom-filename"); // 'zoom' is bigger than 'gigantic'!
 		elems['images'].push({
-			href: "http://g.nordstromimage.com/imagegallery/store/product/"+ fragment,
+			url: "http://g.nordstromimage.com/imagegallery/store/product/"+ fragment,
 			text: "i"+(i+1)
 		});
 	}
@@ -449,9 +418,8 @@ if( location.href.match(/albamoda/) ){
 
 		var id = meta_image.match(/(\d+)\.jpg/);
 
-		var elems	= [];
 		elems['images'] = [
-			{ href: 'https://images.otto.de/is/image/mmo/'+ id[1] +'?scl=1', text: 'i1' },
+			{ url: 'https://images.otto.de/is/image/mmo/'+ id[1] +'?scl=1', text: 'i1' },
 		];
 
 		$('.description').append( companion_node(elems) );
@@ -465,9 +433,8 @@ if( location.href.match(/albamoda/) ){
 
 		var image = $('#prodImgDefault').find('a').attr('href');
 
-		var elems	= [];
 		elems['images'] = [
-			{ href: image, text: 'i1' },
+			{ url: image, text: 'i1' },
 		];
 
 		// we need a wrapper div for alignment
@@ -486,15 +453,12 @@ if( location.href.match(/albamoda/) ){
 
 		var li_array = $('#itemThumbs').children();
 
-		var elems	= [];
-		elems['images'] = [];
-
 		for(var i = 0; i < li_array.length; i++){
 			var img = li_array[i].children[0].getAttribute("src");
 			var ilink = img.replace('_9_', '_14_');
 
 			elems['images'].push({
-				href: ilink,
+				url: ilink,
 				text: 'i'+(i+1)
 			});
 		}
@@ -514,15 +478,12 @@ if( location.href.match(/albamoda/) ){
 	if(meta_image){
 		console.log('zalando product');
       	
-		var elems	= [];
-		elems['images'] = [];
-
 		var link = meta_image.replace("/detail/", "/large/");
 		for(var i=1;i<8;i++){
 			var ilink = link.replace(/@\d/, '@'+ i );
 
 			elems['images'].push({
-				href: ilink,
+				url: ilink,
 				text: 'i'+i
 			});
 		}
@@ -539,15 +500,12 @@ if( location.href.match(/albamoda/) ){
 		var li_array = $('#angles-list').children();
 		// console.log(li_array);
 
-		var elems	= [];
-		elems['images'] = [];
-
 		for(var i = 0; i < li_array.length; i++){
 			var img = li_array[i].children[0];
 			// console.log(img.getAttribute("href"));
 
 			elems['images'].push({
-				href: 'http://a9.zassets.com'+ img.getAttribute("href"),
+				url: 'http://a9.zassets.com'+ img.getAttribute("href"),
 				text: 'i'+ (i+1)
 			});
 		}
@@ -557,7 +515,7 @@ if( location.href.match(/albamoda/) ){
 			// console.log(video_url);
 
 			elems['images'].push({
-				href: video_url,
+				url: video_url,
 				text: 'video'
 			});
 		}
@@ -576,16 +534,13 @@ if( location.href.match(/albamoda/) ){
 	if( $('.cart-action') ){
 		console.log('zara product');
 
-		var elems	= [];
-		elems['images'] = [];
-
 		var imagedivs = $('.bigImageContainer').children();
 		for(var i=0; i < imagedivs.length; i++){
 			var link = $( imagedivs[i] ).find("a").attr("href");
 			if(link.indexOf('.html') >= 1){ break; }
 
 			elems['images'].push({
-				href: link,
+				url: link,
 				text: 'i'+(i+1)
 			});
 		}
@@ -600,13 +555,17 @@ if( location.href.match(/albamoda/) ){
 		console.log('zara page');
 	}
 
+}else if( location.href.match(/\/shop-companion/) ){
+	$("#shop-companion").html("Good!<br><br>You've got the Shop Companion Add-On installed.<br><br>Um, one more thing:<br>If you want to use the \"Do you...?\" feature, you need to enable \"third-party cookies\" in your browser settings.<br>And it only works when you're logged in on evrybase.com.");
+	$("#shop-companion").append( companion_node(elems) );
+
 } // ================ end of all else's =================
 
 function get_meta(key) {
 	var metas = document.getElementsByTagName('meta');
 
-	for (i=0; i<metas.length; i++){
-		if (metas[i].getAttribute("property") == key){
+	for(i=0; i<metas.length; i++){
+		if(metas[i].getAttribute("property") == key){
 			return metas[i].getAttribute("content");
 		}
 	}
@@ -616,55 +575,213 @@ function get_meta(key) {
 function get_meta_name(key) {
 	var metas = document.getElementsByTagName('meta');
 
-	for (i=0; i<metas.length; i++){
-		if (metas[i].getAttribute("name") == key){
+	for(i=0; i<metas.length; i++){
+		if(metas[i].getAttribute("name") == key){
 			return metas[i].getAttribute("content");
 		}
 	}
 
 	return '';
-} 
-
-/*
-function zeroPad(num,count){
-	var numZeropad = num + '';
-	while(numZeropad.length < count) {
-		numZeropad = "0" + numZeropad;
-	}
-	return numZeropad;
 }
-*/
+function get_url_canonical() {
+	var link_tags = document.getElementsByTagName('link');
+
+	for(i=0; i<link_tags.length; i++){
+		if(link_tags[i].getAttribute("rel") == "canonical"){
+			var url = link_tags[i].getAttribute("href");
+			console.log("url_canonical found:", url );
+
+			if(url.match(/^\//)){
+				console.log("url_canonical rel to abs");
+				url = location.protocol +'//'+ location.host + url;
+			}
+
+			return url;
+		}
+	}
+
+	return null;
+}
 
 function companion_node(elems){
 	console.log(elems);
+
+	elems['url']		= location.href;
+	elems['url_canonical']	= get_url_canonical();
+	elems['title']		= document.title;
+
 	var companion_node = document.createElement('div');
-	companion_node.setAttribute("style", "margin-top: 5px; max-width: 300px; text-align: left;");
+	companion_node.setAttribute("style", "margin-top: 5px; max-width: 315px; text-align: left;");
 	companion_node.innerHTML =
-	 '	<div style="padding: 3px 5px; border: 1px solid #ccc; border-radius: 5px 5px 0 0; background: #fafafa; color:#468; font-weight: bold;">'
-	+ addon_name
+	 '	<div style="padding: 3px 5px; border: 1px solid #ccc; border-radius: 5px 5px 0 0; border-bottom: 0; background: #fafafa; color:#468;">'
+	+'		<div style="float: right;padding-right: 3px;"><a href="http://www.evrybase.com/shop-companion">&mdash;</a></div>'
+	+'		<span style="font-weight: bold;">Shop Companion</span>'
 	+'	</div>'
-	+'	<div style="padding: 5px; border: 1px solid #ccc; border-radius: 0 0 5px 5px; border-top: 0; min-font-size: 1em;">'
-//	+'		<p>Do you...? <a href="#want_it">want it</a> <a href="#have_it">have it</a> <a href="#had_it">had it</a></p>'
+	+'	<div style="border-left: 1px solid #ccc; border-right: 1px solid #ccc; min-font-size: 1em;">'
+	+'	</div>'
+	+'	<div style="height: 5px; border: 1px solid #ccc; border-radius: 0 0 5px 5px; border-top: 0;">'
 	+'	</div>';
 
 	if(elems['images']){
-		console.log(' has images');
-		console.log( companion_node.children[1] );
-		companion_node.children[1].textContent = 'XL images: ';
+		console.log('adding images');
+		var div_images = document.createElement('div');
+		div_images.setAttribute("style", "padding: 5px 5px 8px; border-top: 1px solid #ccc;");
+		div_images.textContent = 'XL images: ';
 		for(var i = 0; i < elems['images'].length; i++){
 				var link = document.createElement('a');
-				link.setAttribute("href", elems['images'][i]['href']);
+				link.setAttribute("href", elems['images'][i]['url']);
 				link.textContent = elems['images'][i]['text'];
 				if(elems['images'][i]['style']){
 					link.setAttribute("style", elems['images'][i]['style']);
 				}else{
 					link.setAttribute("style", "margin-right: 4px;");
 				}
-			companion_node.children[1].appendChild(link);
-			
+			div_images.appendChild(link);
 		}
-		console.log(companion_node);
+		companion_node.children[1].appendChild(div_images);
 	}
 
+	if(0){
+		console.log('adding whh');
+		var whh = document.createElement('div');
+		whh.setAttribute("style", "padding: 5px 0; border-top: 1px solid #ccc;");
+		var span = document.createElement('span');
+		span.setAttribute("style", "padding: 5px; width:20%;");
+		span.appendChild( document.createTextNode('Do you..?  ') );
+		whh.appendChild( span );
+
+		var heart = document.createElement('a');
+		heart.setAttribute("href", '#');
+		heart.setAttribute("id", 'shopcompanion_heart');
+		heart.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:20%;");
+		heart.textContent = 'heart it';
+		whh.appendChild( heart );
+		$(document).delegate("#shopcompanion_heart", "click", function() {
+			console.log("click: heart it");
+			whh_click("heart", this );
+			return false;
+		});
+
+		var want = document.createElement('a');
+		want.setAttribute("href", '#');
+		want.setAttribute("id", 'shopcompanion_want');
+		want.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:20%;");
+		want.textContent = 'want it';
+		whh.appendChild( want );
+		$(document).delegate("#shopcompanion_want", "click", function() {
+			console.log("click: want it");
+			whh_click("want", this );
+			return false;
+		});
+
+		var have = document.createElement('a');
+		have.setAttribute("href", '#');
+		have.setAttribute("id", 'shopcompanion_have');
+		have.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:20%;");
+		have.textContent = 'have it';
+		whh.appendChild( have );
+		$(document).delegate("#shopcompanion_have", "click", function() {
+			console.log("click: have it");
+			whh_click("have", this );
+			return false;
+		});
+
+		var had = document.createElement('a');
+		had.setAttribute("href", '#');
+		had.setAttribute("id", 'shopcompanion_had');
+		had.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:20%;");
+		had.textContent = 'had it';
+		whh.appendChild( had );
+		$(document).delegate("#shopcompanion_had", "click", function() {
+			console.log("click: had it");
+			whh_click("had", this );
+			return false;
+		});
+
+		companion_node.children[1].appendChild( whh );
+
+		// it's a GET, so terse data
+		var data_ref = { url: location.href };
+		if(elems['url_canonical']){ data_ref['url_canonical'] = elems['url_canonical']; }
+		if(data_ref['url'] == data_ref['url_canonical']){ delete data_ref['url']; }
+		var check_data = whh_check(data_ref);
+	}
+
+	// console.log(companion_node);
+
 	return companion_node;
+}
+
+function whh_check(data_ref){
+	var xhr = $.ajax({
+	//	type: "GET",
+		url: "http://localhost:3000/api/user/collectible",
+		headers: { 'X-ShopCompanion': version },
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		xhrFields: { withCredentials: true },
+		data: data_ref
+	});
+
+	xhr.success(function(data) {
+		if(data.error){
+			console.log(' whh_check done: error:', data);
+			whh_disable();
+		}else{
+			console.log(' whh_check done: ok:', data);
+			for(var i = 0; i < data.length; i++){
+				console.log(' whh_check done: selecting:', data[i].namespace);
+				whh_select( $("#shopcompanion_"+data[i].namespace.toLowerCase()) );
+			}
+		}
+	});
+	xhr.fail(function() {
+		console.log(' whh_check fail');
+		whh_disable();
+	});
+}
+
+function whh_disable(){
+	console.log(' whh_disable');
+	$("#shopcompanion_heart").unbind().css("color", "#ccc").removeAttr("href");
+	$("#shopcompanion_want").unbind().css("color", "#ccc").removeAttr("href");
+	$("#shopcompanion_have").unbind().css("color", "#ccc").removeAttr("href");
+	$("#shopcompanion_had").unbind().css("color", "#ccc").removeAttr("href");
+}
+
+function whh_select(node){
+//	console.log(' whh_select:', node);
+	$( node ).css("background-color", "#f5f5f5").css("border-top",0).css("border-left","1px solid #ccc").removeAttr("href");
+}
+
+function whh_click(namespace,node){
+//	$( node ).css("background-color", "#afa");
+	$( node ).css("border-top", "2px solid #bbb").css("border-left", "2px solid #ccc");
+
+	$(node).blur();
+
+	var xhr = $.ajax({
+		type: "POST",
+		url: "http://localhost:3000/api/user/collectible",
+		headers: { 'X-ShopCompanion': version },
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		xhrFields: { withCredentials: true },
+		data: JSON.stringify({ namespace: namespace, props: elems })
+	});
+
+	xhr.done(function(data) {
+		if(data.error){
+			console.log( " whh_click: done: error:", data );
+			$( node ).text('error');
+		}else{
+			console.log( " whh_click: done: ok:", data );
+			whh_select(node);
+		}
+	});
+	xhr.fail(function() {
+		console.log( " whh_click: fail");
+		$( node ).text('error');
+		whh_disable();
+	});
 }

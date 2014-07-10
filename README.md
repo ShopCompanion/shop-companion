@@ -37,7 +37,7 @@ __Shops where the add-on currently works:__
 Browser extension repositories:
 
 * [Greasy Fork](https://greasyfork.org/scripts/1678-shop-companion)
-* [OpenUserJS](https://openuserjs.org/scripts/shopcompanion/httpwww.evrybase.comaddon/Shop_Companion)
+* [OpenUserJS](https://openuserjs.org/scripts/ShopCompanion/Shop_Companion)
 * [Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/shop-companion/)
 
 Public code repository:
