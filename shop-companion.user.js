@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.19
-var version =      0.19;
+// @version        0.20
+var version =      0.20;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -19,6 +19,7 @@ var version =      0.19;
 // @include        http://www.deichmann.tld/*
 // @include        http://www.goertz.de/*
 // @include        http://www.hallhuber.com/*
+// @include        http://www.hm.com/*
 // @include        http://www.justfab.tld/*
 // @include        http://www.nelly.tld/*
 // @include        http://nelly.tld/*
@@ -318,6 +319,26 @@ if( location.href.match(/albamoda/) ){
 		console.log('hallhuber page');
 	}
 
+}else if( location.href.match(/hm\.com/) ){
+	var meta_image = get_meta('og:image');
+	if(meta_image){
+		console.log('h&m product');
+
+		var li_array = $('#product-thumbs').children();
+
+		for(var i = 0; i < li_array.length; i++){
+			var url = location.protocol + li_array[i].children[0].getAttribute('href').replace("product/large]","product/zoom]&sink"); // thumb, large, full, zoom
+			elems['images'].push({
+				url: url,
+				text: 'i'+ (i+1)
+			});
+		}
+
+		$('.details').append( companion_node(elems) );
+	}else{
+		console.log('h&m page');
+	}
+
 }else if( location.href.match(/justfab/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
@@ -609,12 +630,13 @@ function companion_node(elems){
 	elems['url']		= location.href;
 	elems['url_canonical']	= get_url_canonical();
 	elems['title']		= document.title;
+	elems['title_og']	= get_meta('og:title');
 
 	var companion_node = document.createElement('div');
 	companion_node.setAttribute("style", "margin-top: 5px; max-width: 315px; text-align: left;");
 	companion_node.innerHTML =
 	 '	<div style="padding: 3px 5px; border: 1px solid #ccc; border-radius: 5px 5px 0 0; border-bottom: 0; background: #fafafa; color:#468;">'
-	+'		<div style="float: right;padding-right: 3px;"><a href="http://www.evrybase.com/shop-companion">&mdash;</a></div>'
+	+'		<div style="float: right;padding-right: 3px;"><a href="http://www.evrybase.com/shop-companion" style="text-decoration: none;">&mdash;</a></div>'
 	+'		<span style="font-weight: bold;">Shop Companion</span>'
 	+'	</div>'
 	+'	<div style="border-left: 1px solid #ccc; border-right: 1px solid #ccc; min-font-size: 1em;">'
