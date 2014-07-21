@@ -12,12 +12,14 @@ __Shops where the add-on currently works:__
 * albamoda.de
 * amazon (non html5 versions)
 * asos
+* bata (European shops)
 * bershka
+* breuninger
 * buffalo-shop.de
 * deichmann
 * goertz.de
 * hallhuber
-* H&M
+* h&m
 * justfab
 * nelly
 * net-a-porter.com

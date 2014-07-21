@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.20
-var version =      0.20;
+// @version        0.21
+var version =      0.21;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -13,10 +13,15 @@ var version =      0.20;
 // @include        http://*.albamoda.tld/*
 // @include        http://www.amazon.tld/*
 // @include        http://www.asos.com/*
+// @include        http://www.bata.tld/*
+// @include         http://nl.bata.eu/*
+// @include        http://www.batashoes.be/*
 // @include        http://www.bershka.com/*
+// @include       https://www.breuninger.com/*
 // @include        http://www.buffalo-shop.de/*
 // @include        http://buffalo-shop.de/*
 // @include        http://www.deichmann.tld/*
+// @includewip     http://www.fashionid.de/*
 // @include        http://www.goertz.de/*
 // @include        http://www.hallhuber.com/*
 // @include        http://www.hm.com/*
@@ -182,6 +187,27 @@ if( location.href.match(/albamoda/) ){
 	}else{
 		console.log('asos non-product page');
 	}
+}else if( location.href.match(/\.bata/) ){	// http://www.bata.eu/  http://www.bata.com/online-shopping/
+	var meta_image = get_meta('og:image');
+	if(meta_image){
+		console.log('bata EU product');
+
+		var tags = $("#article-image .swiper-slide img");
+		for(var i=0; i < tags.length; i++){
+			var url = tags[i].getAttribute('src');	// no high-res images
+			if( url ){
+				elems['images'].push({
+					url: url,
+					text: 'i'+(i+1)
+				});
+			}
+		}
+
+		$('#tabs').append( companion_node(elems) );
+	}else{
+		console.log('bata EU page');
+	}
+
 }else if( location.href.match(/bershka/) ){
 	if( $('#tallasdiv').length > 0 ){
 		console.log('bershka product');
@@ -204,6 +230,28 @@ if( location.href.match(/albamoda/) ){
 		$('#detail_minis').after( wrapper );
 	}else{
 		console.log('bershka page');
+	}
+
+}else if( location.href.match(/breuninger/) ){
+	var meta_image = get_meta('og:image');
+	if(meta_image){
+		console.log('breuninger product');
+
+		var tags = $("#podPictures img");
+		for(var i=0; i < tags.length; i++){
+			var url = tags[i].getAttribute('data-src-zoom');
+			if( url ){
+				elems['images'].push({
+					url: url,
+					text: 'i'+(i+1)
+				});
+			}
+		}
+
+		elems['disable_whh'] = 1; // xhr is misbehaving; todo
+		$('#podProperties').append( companion_node(elems) );
+	}else{
+		console.log('breuninger page');
 	}
 
 }else if( location.href.match(/buffalo-shop/) ){
@@ -292,6 +340,23 @@ if( location.href.match(/albamoda/) ){
 		$('#productSets').prepend( companion_node(elems) );
 	}else{
 		// console.log('goertz page');
+	}
+
+}else if( location.href.match(/fashionid/) ){
+	var meta_image = get_meta('og:image');
+	if(meta_image){
+		console.log('fashionid product');
+
+	/*	var li_array = $('.Images').children();
+
+		for(var i = 0; i < li_array.length; i++){
+			console.log(li_array[i].children[0].children[0]);
+		}
+		
+		$('li .Sizes').append( companion_node(elems) );
+	*/
+	}else{
+		console.log('fashionid non-product page');
 	}
 
 }else if( location.href.match(/hallhuber/) ){
@@ -577,12 +642,42 @@ if( location.href.match(/albamoda/) ){
 	}
 
 }else if( location.href.match(/\/shop-companion/) ){
-	$("#shop-companion").html("Good!<br><br>You've got the Shop Companion Add-On installed.<br><br>Um, one more thing:<br>If you want to use the \"Do you...?\" feature, you need to enable \"third-party cookies\" in your browser settings.<br>And it only works when you're logged in on evrybase.com.");
-	$("#shop-companion").append( companion_node(elems) );
+	$("#shop-companion").html("Good!<br>You've got the Shop Companion Add-On installed.");
+
+	if(1){
+		var settings_div = document.createElement('div');
+		settings_div.setAttribute("id", "settings");
+		settings_div.innerHTML = "<h3>Settings</h3><div id=\"whh-enable-div\">\"Do you...?\" feature: <a href=\"#\" id=\"whh-enable\"></a></div><div style=\"margin-top: 10px;color: #888; font-size: 0.9em;\">Um, one more thing:<br>If you want to use the \"Do you...?\" feature, you need to enable \"third-party cookies\" in your browser settings.<br>And it only works when you're logged in on evrybase.com.</div>";
+		$("#shop-companion").append(settings_div);
+
+		if( GM_getValue('whh.enabled') ){
+			console.log("settings: whh.enabled: true");
+			$("#whh-enable").text('is ON - click to disable');
+		}else{
+			console.log("settings: whh.enabled: false");
+			$("#whh-enable").text('is OFF - click to enable');
+		}
+		$(document).delegate("#whh-enable", "click", function() {
+			whh_enable_toggle(this);
+			return false;
+		});
+	}
 
 } // ================ end of all else's =================
 
-function get_meta(key) {
+function whh_enable_toggle(test){
+	if( GM_getValue('whh.enabled') ){
+		console.log("settings: whh.enabled: toggle to false");
+		GM_setValue('whh.enabled', false);
+		$("#whh-enable").text('is OFF - click to enable');
+	}else{
+		console.log("settings: whh.enabled: toggle to true");
+		GM_setValue("whh.enabled", true);
+		$("#whh-enable").text('is ON - click to disable');
+	}
+}
+
+function get_meta(key){
 	var metas = document.getElementsByTagName('meta');
 
 	for(i=0; i<metas.length; i++){
@@ -593,7 +688,7 @@ function get_meta(key) {
 
 	return '';
 }
-function get_meta_name(key) {
+function get_meta_name(key){
 	var metas = document.getElementsByTagName('meta');
 
 	for(i=0; i<metas.length; i++){
@@ -604,7 +699,7 @@ function get_meta_name(key) {
 
 	return '';
 }
-function get_url_canonical() {
+function get_url_canonical(){
 	var link_tags = document.getElementsByTagName('link');
 
 	for(i=0; i<link_tags.length; i++){
@@ -633,6 +728,7 @@ function companion_node(elems){
 	elems['title_og']	= get_meta('og:title');
 
 	var companion_node = document.createElement('div');
+	companion_node.setAttribute("id", "ShopCompanion");
 	companion_node.setAttribute("style", "margin-top: 5px; max-width: 315px; text-align: left;");
 	companion_node.innerHTML =
 	 '	<div style="padding: 3px 5px; border: 1px solid #ccc; border-radius: 5px 5px 0 0; border-bottom: 0; background: #fafafa; color:#468;">'
@@ -663,7 +759,8 @@ function companion_node(elems){
 		companion_node.children[1].appendChild(div_images);
 	}
 
-	if(0){
+//	if( GM_getValue("whh.enabled") && !elems['disable_whh'] ){
+	if( 0 ){
 		console.log('adding whh');
 		var whh = document.createElement('div');
 		whh.setAttribute("style", "padding: 5px 0; border-top: 1px solid #ccc;");
