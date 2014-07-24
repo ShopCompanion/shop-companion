@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.21
-var version =      0.21;
+// @version        0.22
+var version =      0.22;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -103,7 +103,7 @@ if( location.href.match(/albamoda/) ){
 		if(items.length){
 			for (var i = items.length; i--;) {
 				if( items[i].innerHTML.indexOf('var colorImages = ') >= 1){
-					console.log('found: ' + items[i]);
+					// console.log('found: ' + items[i]);
 					var lines = items[i].innerHTML.split(/\r?\n/);
 					json = lines[2].match(/colorImages\s=\s([^;]+);/)
 					// console.log(json[1]);
@@ -142,14 +142,51 @@ if( location.href.match(/albamoda/) ){
 
 		$('.buyingDetailsGrid tr:last').after('<tr><td>'+ companion_node(elems).innerHTML +'</td></tr>');
 	}else if( $('#buybox').length > 0 ){
-		console.log('amazon html5 product page');
-		if( $('.buyingDetailsGrid').length > 0 ){
-			console.log('amazon html5 product page with html4 buyingDetailsGrid layout');
-		//	$('.buyingDetailsGrid tr:last').after('<tr><td>'+ html_wrapper('XL images: '+ 'this is todo') +'</td></tr>');
+		console.log('amazon newer product page');
+
+		var items = document.getElementsByTagName("script");
+		var json;
+		if(items.length){
+			for (var i = items.length; i--;) {
+				if( items[i].innerHTML.indexOf("colorImages': { 'initial") >= 1){
+					// console.log('found: ' + items[i]);
+					var lines = items[i].innerHTML.split(/\r?\n/);
+					json = lines[57].match(/'initial':\s(.+)/)
+					json[1] = json[1].substring(0,json[1].length - 3);
+					// console.log('json',json[1]);
+					break;
+				}
+			}
 		}else{
-		//	var node = $.parseHTML( html_wrapper('XL images: '+ 'this is todo') );
-		//	$('#rightCol').append(node);
+			console.log('amazon image list not avail');
 		}
+
+		if(json[1]){
+			var array = $.parseJSON(json[1]);
+			// console.log(array);
+			for(var i = 0; i < array.length; i++){
+				var url;
+				if(array[i]['hiRes']){
+					// console.log(array[i]['hiRes']);
+					url = array[i]['hiRes'];
+					// replacing SL1500 (here UL1500) with something large or undef (simply SL), same as SCRMZZZZZZ
+					url = url.replace("UL1500", "SL");
+				}else if(array[i]['large']){
+					// console.log(array[i]['large']);
+					url = array[i]['large'];
+				}
+				if(url){
+					elems['images'].push({
+						url: url,
+						text: 'i'+i
+					});
+				}
+			}
+		}else{
+			console.log('amazon product page json not avail');
+		}
+
+		$('#rightCol').append( companion_node(elems) );
 	}else{
 		console.log('amazon non-product page');
 	}
@@ -508,6 +545,9 @@ if( location.href.match(/albamoda/) ){
 			{ url: 'https://images.otto.de/is/image/mmo/'+ id[1] +'?scl=1', text: 'i1' },
 		];
 
+	//	var active = window.setInterval(function(){ deferred_otto(); }, 1000);
+	//	console.log('timer installed');
+
 		$('.description').append( companion_node(elems) );
 	}else{
 		console.log('otto page');
@@ -665,6 +705,14 @@ if( location.href.match(/albamoda/) ){
 
 } // ================ end of all else's =================
 
+function deferred_otto(){
+	console.log('deferred_otto');
+
+//	clearInterval(active);
+}
+
+// ================ end of deferred functions =================
+
 function whh_enable_toggle(test){
 	if( GM_getValue('whh.enabled') ){
 		console.log("settings: whh.enabled: toggle to false");
@@ -759,7 +807,7 @@ function companion_node(elems){
 		companion_node.children[1].appendChild(div_images);
 	}
 
-//	if( GM_getValue("whh.enabled") && !elems['disable_whh'] ){
+	// if( GM_getValue("whh.enabled") && !elems['disable_whh'] ){
 	if( 0 ){
 		console.log('adding whh');
 		var whh = document.createElement('div');
