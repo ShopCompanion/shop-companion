@@ -1,6 +1,7 @@
 # [Shop Companion](https://github.com/ShopCompanion/shop-companion)
 
-[![Install](https://raw.githubusercontent.com/ShopCompanion/shop-companion/master/github-install-button.jpg)](https://greasyfork.org/scripts/1678-shop-companion/code/Shop%20Companion.user.js)
+[![Install](https://raw.githubusercontent.com/ShopCompanion/shop-companion/master/github-install-button-firefox.png)](https://raw.githubusercontent.com/ShopCompanion/shop-companion/master/shop-companion.xpi)
+[![Install](https://raw.githubusercontent.com/ShopCompanion/shop-companion/master/github-install-button-greasemonkey.jpg)](https://greasyfork.org/scripts/1678-shop-companion/code/Shop%20Companion.user.js)
 [![Like or follow EVRYBASE on Fb](http://www.evrybase.com/res/button-facebook-like.png)](https://www.facebook.com/pages/Evrybase/1438532373085184)
 
 ### Description
