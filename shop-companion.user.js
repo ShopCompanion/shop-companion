@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.22
-var version =      0.22;
+// @version        0.23
+var version =      0.23;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -16,6 +16,7 @@ var version =      0.22;
 // @include        http://www.bata.tld/*
 // @include         http://nl.bata.eu/*
 // @include        http://www.batashoes.be/*
+// @include        http://www.bergdorfgoodman.com/*
 // @include        http://www.bershka.com/*
 // @include       https://www.breuninger.com/*
 // @include        http://www.buffalo-shop.de/*
@@ -25,7 +26,9 @@ var version =      0.22;
 // @include        http://www.goertz.de/*
 // @include        http://www.hallhuber.com/*
 // @include        http://www.hm.com/*
+// @include        http://www.horchow.com/*
 // @include        http://www.justfab.tld/*
+// @include        http://www.neimanmarcus.com/*
 // @include        http://www.nelly.tld/*
 // @include        http://nelly.tld/*
 // @include        http://nlyman.tld/*
@@ -105,7 +108,7 @@ if( location.href.match(/albamoda/) ){
 				if( items[i].innerHTML.indexOf('var colorImages = ') >= 1){
 					// console.log('found: ' + items[i]);
 					var lines = items[i].innerHTML.split(/\r?\n/);
-					json = lines[2].match(/colorImages\s=\s([^;]+);/)
+					json = lines[2].match(/colorImages\s=\s([^;]+);/);
 					// console.log(json[1]);
 					break;
 				}
@@ -132,7 +135,7 @@ if( location.href.match(/albamoda/) ){
 				if(url){
 					elems['images'].push({
 						url: url,
-						text: 'i'+i
+						text: 'i'+(i+1)
 					});
 				}
 			}
@@ -142,50 +145,89 @@ if( location.href.match(/albamoda/) ){
 
 		$('.buyingDetailsGrid tr:last').after('<tr><td>'+ companion_node(elems).innerHTML +'</td></tr>');
 	}else if( $('#buybox').length > 0 ){
-		console.log('amazon newer product page');
+		if( $('#combinedBuyBox').length > 0 ){
+			console.log('amazon dynamic product page v2');
 
-		var items = document.getElementsByTagName("script");
-		var json;
-		if(items.length){
-			for (var i = items.length; i--;) {
-				if( items[i].innerHTML.indexOf("colorImages': { 'initial") >= 1){
-					// console.log('found: ' + items[i]);
-					var lines = items[i].innerHTML.split(/\r?\n/);
-					json = lines[57].match(/'initial':\s(.+)/)
-					json[1] = json[1].substring(0,json[1].length - 3);
-					// console.log('json',json[1]);
-					break;
+			var items = document.getElementsByTagName("script");
+			var json;
+			if(items.length){
+				for (var i = items.length; i--;) {
+					if( items[i].innerHTML.indexOf("imageGalleryData") >= 1){
+						// console.log('found: ' + items[i]);
+						var lines = items[i].innerHTML.split(/\r?\n/);
+						json = lines[63].match(/'imageGalleryData'\s:\s(.+)/);
+						json[1] = json[1].substring(0,json[1].length - 1);
+						// console.log('json',json[1]);
+						break;
+					}
 				}
+			}else{
+				console.log('amazon image list not avail');
+			}
+
+			if(json[1]){
+				var array = $.parseJSON(json[1]);
+				console.log(array);
+				for(var i = 0; i < array.length; i++){
+					var url;
+					if(array[i]['mainUrl']){
+						url = array[i]['mainUrl'];
+					}
+					if(url){
+						elems['images'].push({
+							url: url,
+							text: 'i'+(i+1)
+						});
+					}
+				}
+			}else{
+				console.log('amazon product page json not avail');
 			}
 		}else{
-			console.log('amazon image list not avail');
-		}
+			console.log('amazon dynamic product page v1');
 
-		if(json[1]){
-			var array = $.parseJSON(json[1]);
-			// console.log(array);
-			for(var i = 0; i < array.length; i++){
-				var url;
-				if(array[i]['hiRes']){
-					// console.log(array[i]['hiRes']);
-					url = array[i]['hiRes'];
-					// replacing SL1500 (here UL1500) with something large or undef (simply SL), same as SCRMZZZZZZ
-					url = url.replace("UL1500", "SL");
-				}else if(array[i]['large']){
-					// console.log(array[i]['large']);
-					url = array[i]['large'];
+			var items = document.getElementsByTagName("script");
+			var json;
+			if(items.length){
+				for (var i = items.length; i--;) {
+					if( items[i].innerHTML.indexOf("colorImages': { 'initial") >= 1){
+						// console.log('found: ' + items[i]);
+						var lines = items[i].innerHTML.split(/\r?\n/);
+						json = lines[57].match(/'initial':\s(.+)/);
+						json[1] = json[1].substring(0,json[1].length - 3);
+						// console.log('json',json[1]);
+						break;
+					}
 				}
-				if(url){
-					elems['images'].push({
-						url: url,
-						text: 'i'+i
-					});
-				}
+			}else{
+				console.log('amazon image list not avail');
 			}
-		}else{
-			console.log('amazon product page json not avail');
-		}
 
+			if(json[1]){
+				var array = $.parseJSON(json[1]);
+				console.log(array);
+				for(var i = 0; i < array.length; i++){
+					var url;
+					if(array[i]['hiRes']){
+						// console.log(array[i]['hiRes']);
+						url = array[i]['hiRes'];
+						// replacing SL1500 (here UL1500) with something large or undef (simply SL), same as SCRMZZZZZZ
+						url = url.replace("UL1500", "SL");
+					}else if(array[i]['large']){
+						// console.log(array[i]['large']);
+						url = array[i]['large'];
+					}
+					if(url){
+						elems['images'].push({
+							url: url,
+							text: 'i'+(i+1)
+						});
+					}
+				}
+			}else{
+				console.log('amazon product page json not avail');
+			}
+		}
 		$('#rightCol').append( companion_node(elems) );
 	}else{
 		console.log('amazon non-product page');
@@ -243,6 +285,43 @@ if( location.href.match(/albamoda/) ){
 		$('#tabs').append( companion_node(elems) );
 	}else{
 		console.log('bata EU page');
+	}
+
+}else if( location.href.match(/neimanmarcus\.|bergdorfgoodman\.|horchow\./) ){
+	var meta_image = get_meta('og:image');
+	if(meta_image){
+		console.log('bergdorf/neiman/horchow product');
+
+		var tags = $("#prod-img img");
+		var urls = {}; // dedupe
+		for(var i=0; i < tags.length; i++){
+			var url;
+			var image_url = tags[i].getAttribute('data-zoom-url');
+			if( image_url ){
+				url = image_url;
+			}else{
+				var video_url = tags[i].getAttribute('data-video-url');
+				if( video_url ){
+					url = location.protocol +'//'+ location.host + video_url;
+				}
+			}
+			urls[url] = 1;
+		}
+		console.log(urls);
+		var i = 1;
+		for(var url in urls){
+			if( url.match(/^http/) ){
+				elems['images'].push({
+					url: url,
+					text: 'i'+i
+				});
+				i++;
+			}
+		}
+
+		$('#prodPageCont table .images').append( companion_node(elems) );
+	}else{
+		console.log('bergdorf/neiman/horchow page');
 	}
 
 }else if( location.href.match(/bershka/) ){
@@ -807,15 +886,22 @@ function companion_node(elems){
 		companion_node.children[1].appendChild(div_images);
 	}
 
-	// if( GM_getValue("whh.enabled") && !elems['disable_whh'] ){
-	if( 0 ){
+	if( GM_getValue("whh.enabled") && !elems['disable_whh'] ){
 		console.log('adding whh');
 		var whh = document.createElement('div');
 		whh.setAttribute("style", "padding: 5px 0; border-top: 1px solid #ccc;");
+
 		var span = document.createElement('span');
 		span.setAttribute("style", "padding: 5px; width:20%;");
 		span.appendChild( document.createTextNode('Do you..?  ') );
 		whh.appendChild( span );
+
+		var login_link = document.createElement('a');
+		login_link.setAttribute("href", 'http://www.evrybase.com/login');
+		login_link.setAttribute("id", 'shopcompanion_login');
+		login_link.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:80%; display: none;");
+		login_link.textContent = 'Please log in';
+		whh.appendChild( login_link );
 
 		var heart = document.createElement('a');
 		heart.setAttribute("href", '#');
@@ -882,10 +968,10 @@ function companion_node(elems){
 function whh_check(data_ref){
 	var xhr = $.ajax({
 	//	type: "GET",
-		url: "http://localhost:3000/api/user/collectible",
+		url: "http://localhost:3000/api/me/collectibles",
 		headers: { 'X-ShopCompanion': version },
 		contentType: "application/json; charset=utf-8",
-		dataType: "json",
+	//	dataType: "json",
 		xhrFields: { withCredentials: true },
 		data: data_ref
 	});
@@ -897,28 +983,47 @@ function whh_check(data_ref){
 		}else{
 			console.log(' whh_check done: ok:', data);
 			for(var i = 0; i < data.length; i++){
-				console.log(' whh_check done: selecting:', data[i].namespace);
-				whh_select( $("#shopcompanion_"+data[i].namespace.toLowerCase()) );
+				console.log(' whh_check done: toggling to true:', data[i].namespace);
+				whh_toggle( $("#shopcompanion_"+data[i].namespace.toLowerCase()), data[i] );
 			}
 		}
 	});
 	xhr.fail(function() {
-		console.log(' whh_check fail');
-		whh_disable();
+		if(xhr.status == 401){
+			console.log(' whh_check: not authenticated');
+			whh_disable('not_authenticated');
+		}else{
+			console.log(' whh_check: fail');
+			whh_disable();
+		}
 	});
 }
 
-function whh_disable(){
-	console.log(' whh_disable');
-	$("#shopcompanion_heart").unbind().css("color", "#ccc").removeAttr("href");
-	$("#shopcompanion_want").unbind().css("color", "#ccc").removeAttr("href");
-	$("#shopcompanion_have").unbind().css("color", "#ccc").removeAttr("href");
-	$("#shopcompanion_had").unbind().css("color", "#ccc").removeAttr("href");
+function whh_disable(not_authenticated){
+	if(not_authenticated){
+		console.log(' whh_disable: not authenticated, ask for login');
+		$("#shopcompanion_heart").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
+		$("#shopcompanion_want").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
+		$("#shopcompanion_have").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
+		$("#shopcompanion_had").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
+		$("#shopcompanion_login").css("display", "inline");
+	}else{
+		console.log(' whh_disable');
+		$("#shopcompanion_heart").unbind().css("color", "#ccc").removeAttr("href");
+		$("#shopcompanion_want").unbind().css("color", "#ccc").removeAttr("href");
+		$("#shopcompanion_have").unbind().css("color", "#ccc").removeAttr("href");
+		$("#shopcompanion_had").unbind().css("color", "#ccc").removeAttr("href");
+	}
 }
 
-function whh_select(node){
-//	console.log(' whh_select:', node);
-	$( node ).css("background-color", "#f5f5f5").css("border-top",0).css("border-left","1px solid #ccc").removeAttr("href");
+function whh_toggle(node, data){
+	if( $(node).attr("data-collectible-id") ){
+		// console.log(' whh_toggle: to false', node, 'data: ', data);
+		$( node ).css("background-color", "").css("border-top",0).css("border-left","1px solid #ccc").removeAttr('data-collectible-id').removeAttr('data-wild-item-id');
+	}else{
+		// console.log(' whh_toggle: to true', node, 'data: ', data);
+		$( node ).css("background-color", "#f5f5f5").css("border-top",0).css("border-left","1px solid #ccc").attr('data-collectible-id', data.id).attr('data-wild-item-id', data.wild_item_id);
+	}
 }
 
 function whh_click(namespace,node){
@@ -927,23 +1032,37 @@ function whh_click(namespace,node){
 
 	$(node).blur();
 
-	var xhr = $.ajax({
-		type: "POST",
-		url: "http://localhost:3000/api/user/collectible",
-		headers: { 'X-ShopCompanion': version },
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-		xhrFields: { withCredentials: true },
-		data: JSON.stringify({ namespace: namespace, props: elems })
-	});
+	var collectible_id = $(node).attr("data-collectible-id");
+	if( collectible_id ){
+		var xhr = $.ajax({
+			type: "DELETE",
+			url: "http://localhost:3000/api/me/collectibles/" + collectible_id,
+			headers: { 'X-ShopCompanion': version },
+			contentType: "application/json; charset=utf-8",
+		//	dataType: "json",
+			xhrFields: { withCredentials: true },
+		//	data: { id:  }
+		});
+	}else{
+		var xhr = $.ajax({
+			type: "POST",
+			url: "http://localhost:3000/api/me/collectibles",
+			headers: { 'X-ShopCompanion': version },
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			xhrFields: { withCredentials: true },
+			data: JSON.stringify({ namespace: namespace, props: elems })
+		});
+	}
 
 	xhr.done(function(data) {
 		if(data.error){
 			console.log( " whh_click: done: error:", data );
 			$( node ).text('error');
+			whh_disable();
 		}else{
 			console.log( " whh_click: done: ok:", data );
-			whh_select(node);
+			whh_toggle(node, data);
 		}
 	});
 	xhr.fail(function() {
