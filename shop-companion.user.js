@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.23
-var version =      0.23;
+// @version        0.24
+var version =      0.24;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -80,7 +80,7 @@ elems['images'] = [];
 if( location.href.match(/albamoda/) ){
 	var meta_pagetype = get_meta_name('WT.cg_n');
 	if(meta_pagetype === 'ProductDetailPage'){
-	        console.log('albamoda product');
+	        debug('albamoda product');
 
 		var li_array = $('#imgCarousel').children();
 
@@ -94,42 +94,42 @@ if( location.href.match(/albamoda/) ){
 
 		document.getElementById("contentInfoLinks").appendChild( companion_node(elems) );
 	}else{
-		console.log('albamoda non-product page');
+		debug('albamoda non-product page');
 	}
 
 }else if( location.href.match(/amazon/) ){
 	if( $('#handleBuy').is("form") ){
-		console.log('amazon product page');
+		debug('amazon product page');
 
 		var items = document.getElementsByTagName("script");
 		var json;
 		if(items.length){
 			for (var i = items.length; i--;) {
 				if( items[i].innerHTML.indexOf('var colorImages = ') >= 1){
-					// console.log('found: ' + items[i]);
+					// debug('found: ' + items[i]);
 					var lines = items[i].innerHTML.split(/\r?\n/);
 					json = lines[2].match(/colorImages\s=\s([^;]+);/);
-					// console.log(json[1]);
+					// debug(json[1]);
 					break;
 				}
 			}
 		}else{
-			console.log('amazon image list not avail');
+			debug('amazon image list not avail');
 		}
 
 		if(json[1]){
 			var jsonObj = $.parseJSON(json[1]);
 			var array = jsonObj.initial;
-			// console.log(array);
+			// debug(array);
 			for(var i = 0; i < array.length; i++){
 				var url;
 				if(array[i]['hiRes']){
-					// console.log(array[i]['hiRes']);
+					// debug(array[i]['hiRes']);
 					url = array[i]['hiRes'];
 					// replacing SL1500 with something large or undef (simply SL), same as SCRMZZZZZZ
 					url = url.replace("SL1500", "SL");
 				}else if(array[i]['large']){
-					// console.log(array[i]['large']);
+					// debug(array[i]['large']);
 					url = array[i]['large'];
 				}
 				if(url){
@@ -140,34 +140,34 @@ if( location.href.match(/albamoda/) ){
 				}
 			}
 		}else{
-			console.log('amazon product page json not avail');
+			debug('amazon product page json not avail');
 		}
 
 		$('.buyingDetailsGrid tr:last').after('<tr><td>'+ companion_node(elems).innerHTML +'</td></tr>');
 	}else if( $('#buybox').length > 0 ){
 		if( $('#combinedBuyBox').length > 0 ){
-			console.log('amazon dynamic product page v2');
+			debug('amazon dynamic product page v2');
 
 			var items = document.getElementsByTagName("script");
 			var json;
 			if(items.length){
 				for (var i = items.length; i--;) {
-					if( items[i].innerHTML.indexOf("imageGalleryData") >= 1){
-						// console.log('found: ' + items[i]);
+					if( items[i].innerHTML.indexOf("imageGalleryData") >= 1 ){
+						// debug('found: ' + items[i]);
 						var lines = items[i].innerHTML.split(/\r?\n/);
 						json = lines[63].match(/'imageGalleryData'\s:\s(.+)/);
 						json[1] = json[1].substring(0,json[1].length - 1);
-						// console.log('json',json[1]);
+						// debug('json',json[1]);
 						break;
 					}
 				}
 			}else{
-				console.log('amazon image list not avail');
+				debug('amazon image list not avail');
 			}
 
 			if(json[1]){
 				var array = $.parseJSON(json[1]);
-				console.log(array);
+				debug(array);
 				for(var i = 0; i < array.length; i++){
 					var url;
 					if(array[i]['mainUrl']){
@@ -181,40 +181,46 @@ if( location.href.match(/albamoda/) ){
 					}
 				}
 			}else{
-				console.log('amazon product page json not avail');
+				debug('amazon product page json not avail');
 			}
 		}else{
-			console.log('amazon dynamic product page v1');
+			debug('amazon dynamic product page v1');
 
 			var items = document.getElementsByTagName("script");
 			var json;
+			var video_url;
 			if(items.length){
 				for (var i = items.length; i--;) {
 					if( items[i].innerHTML.indexOf("colorImages': { 'initial") >= 1){
-						// console.log('found: ' + items[i]);
+						// debug('found: ' + items[i]);
 						var lines = items[i].innerHTML.split(/\r?\n/);
 						json = lines[57].match(/'initial':\s(.+)/);
 						json[1] = json[1].substring(0,json[1].length - 3);
-						// console.log('json',json[1]);
-						break;
+						// debug('json',json[1]);
+					//	break;
+					}else if( items[i].innerHTML.indexOf('.mp4",') >= 1 ){
+						// debug("found video");
+					
+						video_url = items[i].innerHTML.match(/"url":"([^"]+)","/);
+						// debug(video_url);
 					}
 				}
 			}else{
-				console.log('amazon image list not avail');
+				debug('amazon image list not avail');
 			}
 
 			if(json[1]){
 				var array = $.parseJSON(json[1]);
-				console.log(array);
+				debug(array);
 				for(var i = 0; i < array.length; i++){
 					var url;
 					if(array[i]['hiRes']){
-						// console.log(array[i]['hiRes']);
+						// debug(array[i]['hiRes']);
 						url = array[i]['hiRes'];
 						// replacing SL1500 (here UL1500) with something large or undef (simply SL), same as SCRMZZZZZZ
 						url = url.replace("UL1500", "SL");
 					}else if(array[i]['large']){
-						// console.log(array[i]['large']);
+						// debug(array[i]['large']);
 						url = array[i]['large'];
 					}
 					if(url){
@@ -224,19 +230,31 @@ if( location.href.match(/albamoda/) ){
 						});
 					}
 				}
+				if(video_url && video_url[1]){
+					elems['images'].push({
+						url: video_url[1],
+						text: 'video'
+					});
+				}
 			}else{
-				console.log('amazon product page json not avail');
+				debug('amazon product page json not avail');
 			}
 		}
-		$('#rightCol').append( companion_node(elems) );
+
+		// we need a wrapper div for alignment
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "position: relative; width: 270px; left: -25px; font-size: 0.9em;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$('#rightCol').append( wrapper );
 	}else{
-		console.log('amazon non-product page');
+		debug('amazon non-product page');
 	}
 
 }else if( location.href.match(/asos/) ){
 	var meta_image = get_meta_name('og:image');
 	if(meta_image){
-		console.log('asos product');
+		debug('asos product');
 
 		var link = meta_image.replace("xl.jpg", "xxl.jpg");
 		elems['images'].push({
@@ -264,12 +282,12 @@ if( location.href.match(/albamoda/) ){
 		
 		$('#content_product_images_box').append( companion_node(elems) );
 	}else{
-		console.log('asos non-product page');
+		debug('asos non-product page');
 	}
 }else if( location.href.match(/\.bata/) ){	// http://www.bata.eu/  http://www.bata.com/online-shopping/
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('bata EU product');
+		debug('bata EU product');
 
 		var tags = $("#article-image .swiper-slide img");
 		for(var i=0; i < tags.length; i++){
@@ -284,13 +302,13 @@ if( location.href.match(/albamoda/) ){
 
 		$('#tabs').append( companion_node(elems) );
 	}else{
-		console.log('bata EU page');
+		debug('bata EU page');
 	}
 
 }else if( location.href.match(/neimanmarcus\.|bergdorfgoodman\.|horchow\./) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('bergdorf/neiman/horchow product');
+		debug('bergdorf/neiman/horchow product');
 
 		var tags = $("#prod-img img");
 		var urls = {}; // dedupe
@@ -307,7 +325,7 @@ if( location.href.match(/albamoda/) ){
 			}
 			urls[url] = 1;
 		}
-		console.log(urls);
+		debug(urls);
 		var i = 1;
 		for(var url in urls){
 			if( url.match(/^http/) ){
@@ -321,12 +339,12 @@ if( location.href.match(/albamoda/) ){
 
 		$('#prodPageCont table .images').append( companion_node(elems) );
 	}else{
-		console.log('bergdorf/neiman/horchow page');
+		debug('bergdorf/neiman/horchow page');
 	}
 
 }else if( location.href.match(/bershka/) ){
 	if( $('#tallasdiv').length > 0 ){
-		console.log('bershka product');
+		debug('bershka product');
 
 		var imagedivs = $("div[id^='superzoom_']").children();
 		for(var i=0; i < imagedivs.length; i++){
@@ -345,13 +363,13 @@ if( location.href.match(/albamoda/) ){
 
 		$('#detail_minis').after( wrapper );
 	}else{
-		console.log('bershka page');
+		debug('bershka page');
 	}
 
 }else if( location.href.match(/breuninger/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('breuninger product');
+		debug('breuninger product');
 
 		var tags = $("#podPictures img");
 		for(var i=0; i < tags.length; i++){
@@ -367,13 +385,13 @@ if( location.href.match(/albamoda/) ){
 		elems['disable_whh'] = 1; // xhr is misbehaving; todo
 		$('#podProperties').append( companion_node(elems) );
 	}else{
-		console.log('breuninger page');
+		debug('breuninger page');
 	}
 
 }else if( location.href.match(/buffalo-shop/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('buffalo product');
+		debug('buffalo product');
 
 		// bug: misses thumbs amended later on via JS
 		var li_array = $('.productthumbnails-list').children();
@@ -392,18 +410,18 @@ if( location.href.match(/albamoda/) ){
 		// bug: less than ideal location, with no room to grow
 		$('#content').prepend( wrapper );
 	}else{
-		console.log('buffalo page');
+		debug('buffalo page');
 	}
 
 }else if( location.href.match(/deichmann|roland-schuhe/) ){
 	if( $('#product-detail').is("form") ){
-        	// console.log('deichmann product');
+        	// debug('deichmann product');
 
 		var prod_shop_id = $('#checkedProductCode').attr('value');
 
 		if( location.href.match(/roland/) ){
 			prod_shop_id = prod_shop_id.replace(/^0+100/, ''); // roland ids start with 100.. after zeropadding
-			console.log(prod_shop_id);
+			debug(prod_shop_id);
 
 			// http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--1234_PS1.jpg
 			elems['images'] = [
@@ -413,7 +431,7 @@ if( location.href.match(/albamoda/) ){
 			];
 		}else{
 			prod_shop_id = prod_shop_id.replace(/^0+/, '');
-			console.log(prod_shop_id);
+			debug(prod_shop_id);
 
 			// alt: http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--1234_P.png
 			elems['images'] = [
@@ -430,14 +448,14 @@ if( location.href.match(/albamoda/) ){
 
 		$('.tabContent .content-1').prepend( wrapper );
 	}else{
-		// console.log('deichmann page');
+		// debug('deichmann page');
 	}
 
-}else if( location.href.match(/goertz/) ){
+}else if( location.href.match(/goertz/) ){ // todo: unreliable
 	var id = document.getElementById("zoomProductName").innerHTML;
 
 	if( id ){
-		console.log('goertz product page');
+		debug('goertz product page');
 
 		elems['images'] = [
 			{ url: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products', text: 'i1' },	/* tail 2 seems highest resolution */
@@ -455,29 +473,29 @@ if( location.href.match(/albamoda/) ){
 
 		$('#productSets').prepend( companion_node(elems) );
 	}else{
-		// console.log('goertz page');
+		// debug('goertz page');
 	}
 
 }else if( location.href.match(/fashionid/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('fashionid product');
+		debug('fashionid product');
 
 	/*	var li_array = $('.Images').children();
 
 		for(var i = 0; i < li_array.length; i++){
-			console.log(li_array[i].children[0].children[0]);
+			debug(li_array[i].children[0].children[0]);
 		}
 		
 		$('li .Sizes').append( companion_node(elems) );
 	*/
 	}else{
-		console.log('fashionid non-product page');
+		debug('fashionid non-product page');
 	}
 
 }else if( location.href.match(/hallhuber/) ){
-	if( $('.messages_product_view').length > 0 ){ // too broad
-		console.log('hallhuber product');
+	if( $('#messages_product_view').length > 0 ){ // too broad
+		debug('hallhuber product');
 
 		var imagedivs = $('.product-image-gallery').children();
 		for(var i=1; i < imagedivs.length; i++){ // first is same as default: skip
@@ -497,13 +515,13 @@ if( location.href.match(/albamoda/) ){
 
 		$('.product-collateral').append( companion_node(elems) );
 	}else{
-		console.log('hallhuber page');
+		debug('hallhuber page');
 	}
 
 }else if( location.href.match(/hm\.com/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('h&m product');
+		debug('h&m product');
 
 		var li_array = $('#product-thumbs').children();
 
@@ -517,13 +535,13 @@ if( location.href.match(/albamoda/) ){
 
 		$('.details').append( companion_node(elems) );
 	}else{
-		console.log('h&m page');
+		debug('h&m page');
 	}
 
 }else if( location.href.match(/justfab/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('justfab product');
+		debug('justfab product');
 
 		var imagedivs = [];
 		if( $('.MagicZoomPlusDisabled').length > 0 ){
@@ -553,13 +571,13 @@ if( location.href.match(/albamoda/) ){
 
 		$('#description .details').after( wrapper );
 	}else{
-		console.log('justfab page');
+		debug('justfab page');
 	}
 
 }else if( location.href.match(/nelly|nlyman/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('nelly product page');
+		debug('nelly product page');
 
 		var elem = meta_image.match(/nlyscandinavia\/([0-9-]+)\?/);
 		var id = elem[1];
@@ -576,13 +594,13 @@ if( location.href.match(/albamoda/) ){
 
 		$('.productpage-right').append( companion_node(elems) );
 	}else{
-		// console.log('nelly page');
+		// debug('nelly page');
 	}
 
 }else if( location.href.match(/net-a-porter\.com/) ){
 	var prodId = location.href.match(/product\/(\d+)/)[1];
 	if(prodId){
-		console.log('nap product page');
+		debug('nap product page');
 
 		elems['images'] = [
 			{ url: 'http://cache.net-a-porter.com/images/products/'+prodId+'/'+prodId+'_in_xxl.jpg', text: 'i1', style: "font-size:13px; margin-right:4px;" },
@@ -595,11 +613,11 @@ if( location.href.match(/albamoda/) ){
 
 		$('#product-details-container').append( companion_node(elems) );
 	}else{
-		// console.log('nap page');
+		// debug('nap page');
 	}
 
 }else if( location.href.match(/nordstrom/) ){
-	console.log('nordstrom product page');
+	debug('nordstrom product page');
 
 	var li_array = $('.image-thumbs').children();
 
@@ -616,7 +634,7 @@ if( location.href.match(/albamoda/) ){
 }else if( location.href.match(/otto/) ){	// incomplete, (only first image is on static page); also: not catching variation updates
 	var meta_image = get_meta_name('og:image');
 	if(meta_image){
-		console.log('otto product');
+		debug('otto product');
 
 		var id = meta_image.match(/(\d+)\.jpg/);
 
@@ -625,16 +643,17 @@ if( location.href.match(/albamoda/) ){
 		];
 
 	//	var active = window.setInterval(function(){ deferred_otto(); }, 1000);
-	//	console.log('timer installed');
+	//	debug('timer installed');
 
+		elems['disable_whh'] = 1; // xhr is misbehaving; todo
 		$('.description').append( companion_node(elems) );
 	}else{
-		console.log('otto page');
+		debug('otto page');
 	}
 
 }else if( location.href.match(/uniqlo/) ){
 	if( $('#prodInfo').length > 0 ){ // todo: it's too broad
-		console.log('uniqlo product');
+		debug('uniqlo product');
 
 		var image = $('#prodImgDefault').find('a').attr('href');
 
@@ -649,12 +668,12 @@ if( location.href.match(/albamoda/) ){
 
 		$('#prodSelectAttribute').append( wrapper );
 	}else{
-		console.log('uniqlo page');
+		debug('uniqlo page');
 	}
 }else if( location.href.match(/yoox/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('yoox product');
+		debug('yoox product');
 
 		var li_array = $('#itemThumbs').children();
 
@@ -675,13 +694,13 @@ if( location.href.match(/albamoda/) ){
 
 		$('#itemInfoTab').append( wrapper );
 	}else{
-		console.log('yoox page');
+		debug('yoox page');
 	}
 
 }else if( location.href.match(/zalando/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-		console.log('zalando product');
+		debug('zalando product');
       	
 		var link = meta_image.replace("/detail/", "/large/");
 		for(var i=1;i<8;i++){
@@ -693,21 +712,26 @@ if( location.href.match(/albamoda/) ){
 			});
 		}
 
-		$('#productDetailsMain').append( companion_node(elems) );
+		// we need a wrapper div for alignment
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "position: relative; width: 250px; left: -15px;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$('#productDetailsMain').append( wrapper );
 	}else{
-		console.log('zalando non-product page');
+		debug('zalando non-product page');
 	}
 
 }else if( location.href.match(/zappos/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
-        	console.log('zappos product');
+        	debug('zappos product');
 		var li_array = $('#angles-list').children();
-		// console.log(li_array);
+		// debug(li_array);
 
 		for(var i = 0; i < li_array.length; i++){
 			var img = li_array[i].children[0];
-			// console.log(img.getAttribute("href"));
+			// debug(img.getAttribute("href"));
 
 			elems['images'].push({
 				url: 'http://a9.zassets.com'+ img.getAttribute("href"),
@@ -717,7 +741,7 @@ if( location.href.match(/albamoda/) ){
 
 		var video_url = $('#vertical-video').attr('href');
 		if( video_url ){
-			// console.log(video_url);
+			// debug(video_url);
 
 			elems['images'].push({
 				url: video_url,
@@ -732,12 +756,12 @@ if( location.href.match(/albamoda/) ){
 
 		$('#productDescription').prepend( wrapper );
 	}else{
-		// console.log('zappos page');
+		// debug('zappos page');
 	}
 
 }else if( location.href.match(/zara/) ){
 	if( $('.cart-action') ){
-		console.log('zara product');
+		debug('zara product');
 
 		var imagedivs = $('.bigImageContainer').children();
 		for(var i=0; i < imagedivs.length; i++){
@@ -757,7 +781,7 @@ if( location.href.match(/albamoda/) ){
 
 		$(".right").append( wrapper );
 	}else{
-		console.log('zara page');
+		debug('zara page');
 	}
 
 }else if( location.href.match(/\/shop-companion/) ){
@@ -770,10 +794,10 @@ if( location.href.match(/albamoda/) ){
 		$("#shop-companion").append(settings_div);
 
 		if( GM_getValue('whh.enabled') ){
-			console.log("settings: whh.enabled: true");
+			debug("settings: whh.enabled: true");
 			$("#whh-enable").text('is ON - click to disable');
 		}else{
-			console.log("settings: whh.enabled: false");
+			debug("settings: whh.enabled: false");
 			$("#whh-enable").text('is OFF - click to enable');
 		}
 		$(document).delegate("#whh-enable", "click", function() {
@@ -785,20 +809,26 @@ if( location.href.match(/albamoda/) ){
 } // ================ end of all else's =================
 
 function deferred_otto(){
-	console.log('deferred_otto');
+	debug('deferred_otto');
 
 //	clearInterval(active);
 }
 
 // ================ end of deferred functions =================
 
+function debug(){
+	if(0){
+		console.log(arguments);
+	}
+}
+
 function whh_enable_toggle(test){
 	if( GM_getValue('whh.enabled') ){
-		console.log("settings: whh.enabled: toggle to false");
+		debug("settings: whh.enabled: toggle to false");
 		GM_setValue('whh.enabled', false);
 		$("#whh-enable").text('is OFF - click to enable');
 	}else{
-		console.log("settings: whh.enabled: toggle to true");
+		debug("settings: whh.enabled: toggle to true");
 		GM_setValue("whh.enabled", true);
 		$("#whh-enable").text('is ON - click to disable');
 	}
@@ -832,10 +862,10 @@ function get_url_canonical(){
 	for(i=0; i<link_tags.length; i++){
 		if(link_tags[i].getAttribute("rel") == "canonical"){
 			var url = link_tags[i].getAttribute("href");
-			console.log("url_canonical found:", url );
+			debug("url_canonical found:", url );
 
 			if(url.match(/^\//)){
-				console.log("url_canonical rel to abs");
+				debug("url_canonical rel to abs");
 				url = location.protocol +'//'+ location.host + url;
 			}
 
@@ -847,7 +877,7 @@ function get_url_canonical(){
 }
 
 function companion_node(elems){
-	console.log(elems);
+	debug(elems);
 
 	elems['url']		= location.href;
 	elems['url_canonical']	= get_url_canonical();
@@ -868,7 +898,7 @@ function companion_node(elems){
 	+'	</div>';
 
 	if(elems['images']){
-		console.log('adding images');
+		debug('adding images');
 		var div_images = document.createElement('div');
 		div_images.setAttribute("style", "padding: 5px 5px 8px; border-top: 1px solid #ccc;");
 		div_images.textContent = 'XL images: ';
@@ -887,7 +917,7 @@ function companion_node(elems){
 	}
 
 	if( GM_getValue("whh.enabled") && !elems['disable_whh'] ){
-		console.log('adding whh');
+		debug('adding whh');
 		var whh = document.createElement('div');
 		whh.setAttribute("style", "padding: 5px 0; border-top: 1px solid #ccc;");
 
@@ -906,11 +936,11 @@ function companion_node(elems){
 		var heart = document.createElement('a');
 		heart.setAttribute("href", '#');
 		heart.setAttribute("id", 'shopcompanion_heart');
-		heart.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:20%;");
+		heart.setAttribute("style", "margin: 0; padding: 5px; border-left: 1px solid #ccc; width:20%;");
 		heart.textContent = 'heart it';
 		whh.appendChild( heart );
 		$(document).delegate("#shopcompanion_heart", "click", function() {
-			console.log("click: heart it");
+			debug("click: heart it");
 			whh_click("heart", this );
 			return false;
 		});
@@ -918,11 +948,11 @@ function companion_node(elems){
 		var want = document.createElement('a');
 		want.setAttribute("href", '#');
 		want.setAttribute("id", 'shopcompanion_want');
-		want.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:20%;");
+		want.setAttribute("style", "margin: 0; padding: 5px; border-left: 1px solid #ccc; width:20%;");
 		want.textContent = 'want it';
 		whh.appendChild( want );
 		$(document).delegate("#shopcompanion_want", "click", function() {
-			console.log("click: want it");
+			debug("click: want it");
 			whh_click("want", this );
 			return false;
 		});
@@ -930,11 +960,11 @@ function companion_node(elems){
 		var have = document.createElement('a');
 		have.setAttribute("href", '#');
 		have.setAttribute("id", 'shopcompanion_have');
-		have.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:20%;");
+		have.setAttribute("style", "margin: 0; padding: 5px; border-left: 1px solid #ccc; width:20%;");
 		have.textContent = 'have it';
 		whh.appendChild( have );
 		$(document).delegate("#shopcompanion_have", "click", function() {
-			console.log("click: have it");
+			debug("click: have it");
 			whh_click("have", this );
 			return false;
 		});
@@ -942,11 +972,11 @@ function companion_node(elems){
 		var had = document.createElement('a');
 		had.setAttribute("href", '#');
 		had.setAttribute("id", 'shopcompanion_had');
-		had.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:20%;");
+		had.setAttribute("style", "margin: 0; padding: 5px; border-left: 1px solid #ccc; width:20%;");
 		had.textContent = 'had it';
 		whh.appendChild( had );
 		$(document).delegate("#shopcompanion_had", "click", function() {
-			console.log("click: had it");
+			debug("click: had it");
 			whh_click("had", this );
 			return false;
 		});
@@ -960,7 +990,7 @@ function companion_node(elems){
 		var check_data = whh_check(data_ref);
 	}
 
-	// console.log(companion_node);
+	// debug(companion_node);
 
 	return companion_node;
 }
@@ -968,7 +998,7 @@ function companion_node(elems){
 function whh_check(data_ref){
 	var xhr = $.ajax({
 	//	type: "GET",
-		url: "http://localhost:3000/api/me/collectibles",
+		url: "http://www.evrybase.com/api/me/collectibles",
 		headers: { 'X-ShopCompanion': version },
 		contentType: "application/json; charset=utf-8",
 	//	dataType: "json",
@@ -978,22 +1008,22 @@ function whh_check(data_ref){
 
 	xhr.success(function(data) {
 		if(data.error){
-			console.log(' whh_check done: error:', data);
+			debug(' whh_check done: error:', data);
 			whh_disable();
 		}else{
-			console.log(' whh_check done: ok:', data);
-			for(var i = 0; i < data.length; i++){
-				console.log(' whh_check done: toggling to true:', data[i].namespace);
-				whh_toggle( $("#shopcompanion_"+data[i].namespace.toLowerCase()), data[i] );
+			debug(' whh_check done: ok:', data);
+			for(var i = 0; i < data.me.length; i++){
+				debug(' whh_check done: toggling to true:', data.me[i].namespace);
+				whh_toggle( $("#shopcompanion_"+data.me[i].namespace.toLowerCase()), data.me[i] );
 			}
 		}
 	});
 	xhr.fail(function() {
 		if(xhr.status == 401){
-			console.log(' whh_check: not authenticated');
+			debug(' whh_check: not authenticated');
 			whh_disable('not_authenticated');
 		}else{
-			console.log(' whh_check: fail');
+			debug(' whh_check: fail');
 			whh_disable();
 		}
 	});
@@ -1001,14 +1031,14 @@ function whh_check(data_ref){
 
 function whh_disable(not_authenticated){
 	if(not_authenticated){
-		console.log(' whh_disable: not authenticated, ask for login');
+		debug(' whh_disable: not authenticated, ask for login');
 		$("#shopcompanion_heart").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
 		$("#shopcompanion_want").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
 		$("#shopcompanion_have").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
 		$("#shopcompanion_had").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
 		$("#shopcompanion_login").css("display", "inline");
 	}else{
-		console.log(' whh_disable');
+		debug(' whh_disable');
 		$("#shopcompanion_heart").unbind().css("color", "#ccc").removeAttr("href");
 		$("#shopcompanion_want").unbind().css("color", "#ccc").removeAttr("href");
 		$("#shopcompanion_have").unbind().css("color", "#ccc").removeAttr("href");
@@ -1018,10 +1048,10 @@ function whh_disable(not_authenticated){
 
 function whh_toggle(node, data){
 	if( $(node).attr("data-collectible-id") ){
-		// console.log(' whh_toggle: to false', node, 'data: ', data);
+		// debug(' whh_toggle: to false', node, 'data: ', data);
 		$( node ).css("background-color", "").css("border-top",0).css("border-left","1px solid #ccc").removeAttr('data-collectible-id').removeAttr('data-wild-item-id');
 	}else{
-		// console.log(' whh_toggle: to true', node, 'data: ', data);
+		// debug(' whh_toggle: to true', node, 'data: ', data);
 		$( node ).css("background-color", "#f5f5f5").css("border-top",0).css("border-left","1px solid #ccc").attr('data-collectible-id', data.id).attr('data-wild-item-id', data.wild_item_id);
 	}
 }
@@ -1036,7 +1066,7 @@ function whh_click(namespace,node){
 	if( collectible_id ){
 		var xhr = $.ajax({
 			type: "DELETE",
-			url: "http://localhost:3000/api/me/collectibles/" + collectible_id,
+			url: "http://www.evrybase.com/api/me/collectibles/" + collectible_id,
 			headers: { 'X-ShopCompanion': version },
 			contentType: "application/json; charset=utf-8",
 		//	dataType: "json",
@@ -1046,7 +1076,7 @@ function whh_click(namespace,node){
 	}else{
 		var xhr = $.ajax({
 			type: "POST",
-			url: "http://localhost:3000/api/me/collectibles",
+			url: "http://www.evrybase.com/api/me/collectibles",
 			headers: { 'X-ShopCompanion': version },
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
@@ -1057,16 +1087,16 @@ function whh_click(namespace,node){
 
 	xhr.done(function(data) {
 		if(data.error){
-			console.log( " whh_click: done: error:", data );
+			debug( " whh_click: done: error:", data );
 			$( node ).text('error');
 			whh_disable();
 		}else{
-			console.log( " whh_click: done: ok:", data );
+			debug( " whh_click: done: ok:", data );
 			whh_toggle(node, data);
 		}
 	});
 	xhr.fail(function() {
-		console.log( " whh_click: fail");
+		debug( " whh_click: fail");
 		$( node ).text('error');
 		whh_disable();
 	});
