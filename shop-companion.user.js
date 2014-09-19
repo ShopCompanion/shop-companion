@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.
-// @version        0.24
-var version =      0.24;
+// @version        0.25
+var version =      0.25;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -74,6 +74,28 @@ var version =      0.24;
 
 'use strict';
 
+if(typeof GM_getValue === "function"){	// we're under a GM compatibility layer
+	function storage_set(key,value, callback) { // cb is optional on set
+		GM_setValue(key,value);
+		callback({ "status": true, "key": key, "value": value }); // storage API compatible arg object
+	}
+	function storage_get(key, callback) {
+		var value = GM_getValue(key);
+		if(value == true){ value = "value"; } // on Firefox, versions < 0.25 may have set a boolean, now we always stringify - mimic that
+		callback({ "status": true, "key": key, "value": value });
+	}
+}else{ // we're on Chrome+BabelExt
+	// we need to ask for 'storage'-permission in our Chrome manifest.json; which we do but BabelExt doesn't do it out-of-the-box
+	// now, that we have that, we wrap the storage api with our own callback-expecting function - which degrades to "no callback expected"
+	// when wrapped by Scriptify+Firefox (see above)
+	function storage_set(key,value, callback) { // cb is optional on set
+		BabelExt.storage.set(key,value,callback);
+	}
+	function storage_get(key, callback) {
+		BabelExt.storage.get(key,callback);
+	}
+}
+
 var elems	= {}; // Object! for assoc. arrays
 elems['images'] = [];
 
@@ -97,7 +119,7 @@ if( location.href.match(/albamoda/) ){
 		debug('albamoda non-product page');
 	}
 
-}else if( location.href.match(/amazon/) ){
+}else if( location.href.match(/amazon/) ){ // todo: mobile amazon doesn't provide us with on-page access to full-size images
 	if( $('#handleBuy').is("form") ){
 		debug('amazon product page');
 
@@ -117,7 +139,7 @@ if( location.href.match(/albamoda/) ){
 			debug('amazon image list not avail');
 		}
 
-		if(json[1]){
+		if(json && json[1]){
 			var jsonObj = $.parseJSON(json[1]);
 			var array = jsonObj.initial;
 			// debug(array);
@@ -165,7 +187,7 @@ if( location.href.match(/albamoda/) ){
 				debug('amazon image list not avail');
 			}
 
-			if(json[1]){
+			if(json && json[1]){
 				var array = $.parseJSON(json[1]);
 				debug(array);
 				for(var i = 0; i < array.length; i++){
@@ -184,7 +206,7 @@ if( location.href.match(/albamoda/) ){
 				debug('amazon product page json not avail');
 			}
 		}else{
-			debug('amazon dynamic product page v1');
+			debug('amazon dynamic product page v1'); // also used for mobile devices
 
 			var items = document.getElementsByTagName("script");
 			var json;
@@ -194,9 +216,18 @@ if( location.href.match(/albamoda/) ){
 					if( items[i].innerHTML.indexOf("colorImages': { 'initial") >= 1){
 						// debug('found: ' + items[i]);
 						var lines = items[i].innerHTML.split(/\r?\n/);
-						json = lines[57].match(/'initial':\s(.+)/);
+
+						// debug('lines: ',lines);
+						var line;
+						for(var l = 50; l < lines.length; l++){
+							if( lines[l].match(/colorImages/) ){
+								line = lines[l];
+							}
+						}
+
+						json = line.match(/'initial':\s(.+)/);
 						json[1] = json[1].substring(0,json[1].length - 3);
-						// debug('json',json[1]);
+						debug('json',json[1]);
 					//	break;
 					}else if( items[i].innerHTML.indexOf('.mp4",') >= 1 ){
 						// debug("found video");
@@ -209,7 +240,7 @@ if( location.href.match(/albamoda/) ){
 				debug('amazon image list not avail');
 			}
 
-			if(json[1]){
+			if(json && json[1]){
 				var array = $.parseJSON(json[1]);
 				debug(array);
 				for(var i = 0; i < array.length; i++){
@@ -241,12 +272,21 @@ if( location.href.match(/albamoda/) ){
 			}
 		}
 
-		// we need a wrapper div for alignment
-		var wrapper = document.createElement('div');
-		wrapper.setAttribute("style", "position: relative; width: 270px; left: -25px; font-size: 0.9em;");
-		wrapper.appendChild( companion_node(elems) );
+		var $target = $('#rightCol');
+		if( $target.length > 0 ){
+			// we need a wrapper div for alignment
+			var wrapper = document.createElement('div');
+			wrapper.setAttribute("style", "position: relative; width: 270px; left: -25px; font-size: 0.9em;");
+			wrapper.appendChild( companion_node(elems) );
 
-		$('#rightCol').append( wrapper );
+			$target.append( wrapper );
+		}else{
+			$target = $("#aboutThisItem_feature_div");
+			if( $target.length > 0 ){
+				debug("amazon mobile view");
+				$target.before( companion_node(elems) );
+			}
+		}
 	}else{
 		debug('amazon non-product page');
 	}
@@ -413,7 +453,7 @@ if( location.href.match(/albamoda/) ){
 		debug('buffalo page');
 	}
 
-}else if( location.href.match(/deichmann|roland-schuhe/) ){
+}else if( location.href.match(/deichmann|roland-schuhe|dosenbach/) ){
 	if( $('#product-detail').is("form") ){
         	// debug('deichmann product');
 
@@ -793,16 +833,19 @@ if( location.href.match(/albamoda/) ){
 		settings_div.innerHTML = "<h3>Settings</h3><div id=\"whh-enable-div\">\"Do you...?\" feature: <a href=\"#\" id=\"whh-enable\"></a></div><div style=\"margin-top: 10px;color: #888; font-size: 0.9em;\">Um, one more thing:<br>If you want to use the \"Do you...?\" feature, you need to enable \"third-party cookies\" in your browser settings.<br>And it only works when you're logged in on evrybase.com.</div>";
 		$("#shop-companion").append(settings_div);
 
-		if( GM_getValue('whh.enabled') ){
-			debug("settings: whh.enabled: true");
-			$("#whh-enable").text('is ON - click to disable');
-		}else{
-			debug("settings: whh.enabled: false");
-			$("#whh-enable").text('is OFF - click to enable');
-		}
-		$(document).delegate("#whh-enable", "click", function() {
-			whh_enable_toggle(this);
-			return false;
+		storage_get("whh.enabled", function(setting){
+			// debug(setting);
+			if(setting && setting.value == "true"){
+				debug("settings: whh.enabled: true");
+				$("#whh-enable").text('is ON - click to disable');
+			}else{
+				debug("settings: whh.enabled: false");
+				$("#whh-enable").text('is OFF - click to enable');
+			}
+			$(document).delegate("#whh-enable", "click", function() {
+				whh_enable_toggle(this);
+				return false;
+			});
 		});
 	}
 
@@ -823,15 +866,18 @@ function debug(){
 }
 
 function whh_enable_toggle(test){
-	if( GM_getValue('whh.enabled') ){
-		debug("settings: whh.enabled: toggle to false");
-		GM_setValue('whh.enabled', false);
-		$("#whh-enable").text('is OFF - click to enable');
-	}else{
-		debug("settings: whh.enabled: toggle to true");
-		GM_setValue("whh.enabled", true);
-		$("#whh-enable").text('is ON - click to disable');
-	}
+	storage_get('whh.enabled', function(setting){
+		// debug('whh_enable_toggle:',setting);
+		if(setting && setting.value == "true"){
+			debug("settings: whh.enabled: toggle to false");
+			storage_set('whh.enabled', "false", function(){});
+			$("#whh-enable").text('is OFF - click to enable');
+		}else{
+			debug("settings: whh.enabled: toggle to true");
+			storage_set('whh.enabled', "true", function(){});
+			$("#whh-enable").text('is ON - click to disable');
+		}
+	});
 }
 
 function get_meta(key){
@@ -889,8 +935,8 @@ function companion_node(elems){
 	companion_node.setAttribute("style", "margin-top: 5px; max-width: 315px; text-align: left;");
 	companion_node.innerHTML =
 	 '	<div style="padding: 3px 5px; border: 1px solid #ccc; border-radius: 5px 5px 0 0; border-bottom: 0; background: #fafafa; color:#468;">'
-	+'		<div style="float: right;padding-right: 3px;"><a href="http://www.evrybase.com/shop-companion" style="text-decoration: none;">&mdash;</a></div>'
-	+'		<span style="font-weight: bold;">Shop Companion</span>'
+	+'		<div style="float: right; padding-right: 3px;"><a id="shopcompanion_me"></a> &nbsp; <a href="http://www.evrybase.com/shop-companion" style="text-decoration: none;">&mdash;</a></div>'
+	+'		<a href="http://www.evrybase.com/" style="font-weight: bold;" title="Visit evrybase.com, ShopCompanion\'s home">Shop Companion</a>'
 	+'	</div>'
 	+'	<div style="border-left: 1px solid #ccc; border-right: 1px solid #ccc; min-font-size: 1em;">'
 	+'	</div>'
@@ -916,7 +962,9 @@ function companion_node(elems){
 		companion_node.children[1].appendChild(div_images);
 	}
 
-	if( GM_getValue("whh.enabled") && !elems['disable_whh'] ){
+	if( !elems['disable_whh'] ){
+	  storage_get('whh.enabled', function(setting){
+	    if(setting && setting.value == "true"){
 		debug('adding whh');
 		var whh = document.createElement('div');
 		whh.setAttribute("style", "padding: 5px 0; border-top: 1px solid #ccc;");
@@ -988,7 +1036,9 @@ function companion_node(elems){
 		if(elems['url_canonical']){ data_ref['url_canonical'] = elems['url_canonical']; }
 		if(data_ref['url'] == data_ref['url_canonical']){ delete data_ref['url']; }
 		var check_data = whh_check(data_ref);
-	}
+	    }
+	  });
+	} // end: unless disabled
 
 	// debug(companion_node);
 
@@ -1052,7 +1102,7 @@ function whh_toggle(node, data){
 		$( node ).css("background-color", "").css("border-top",0).css("border-left","1px solid #ccc").removeAttr('data-collectible-id').removeAttr('data-wild-item-id');
 	}else{
 		// debug(' whh_toggle: to true', node, 'data: ', data);
-		$( node ).css("background-color", "#f5f5f5").css("border-top",0).css("border-left","1px solid #ccc").attr('data-collectible-id', data.id).attr('data-wild-item-id', data.wild_item_id);
+		$( node ).css("background-color", "#f4f4f4").css("border-top",0).css("border-left","1px solid #ccc").attr('data-collectible-id', data.id).attr('data-wild-item-id', data.wild_item_id);
 	}
 }
 

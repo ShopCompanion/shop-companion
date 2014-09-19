@@ -1,0 +1,84 @@
+{
+	"name": "Shop Companion",
+	"version": "0.25",
+	"manifest_version": 2,
+	"description": "Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.",
+	"update_url": "http://www.evrybase.com/",
+	"background": {
+		"persistent": false, // Google docs: Unless you absolutely need your background page to run all the time, prefer to use an event page. 
+		"scripts": ["background.js"]
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"*://www.amazon.co.uk/*",
+				"*://www.amazon.com/*",
+				"*://www.amazon.de/*",
+				"*://www.amazon.es/*",
+				"*://www.amazon.fr/*",
+				"*://www.asos.de/*",
+				"*://www.asos.fr/*",
+				"*://www.asos.com/*",
+	                        "*://www.bata.at/*",
+	                        "*://www.bata.fr/*",
+	                        "*://www.bata.de/*",
+	                        "*://www.bata.it/*",
+	                        "*://www.bata.lu/*",
+	                        "*://www.bata.pl/*",
+	                        "*://www.bata.pt/*",
+	                        "*://www.bata.sk/*",
+	                        "*://www.bata.es/*",
+	                        "*://www.bata.ch/*",
+	                        "*://nl.bata.eu/*",
+        	                "*://www.batashoes.be/*",
+        	                "*://www.bergdorfgoodman.com/*",
+        	                "*://www.bershka.com/*",
+	                        "*://www.breuninger.com/*",
+        	                "*://www.buffalo-shop.de/*",
+        	                "*://buffalo-shop.de/*",
+	                        "*://www.deichmann.at/*",
+	                        "*://www.deichmann.de/*",
+	                        "*://www.deichmann.com/*",
+	                        "*://www.dosenbach.ch/*",
+				// "*://www.fashionid.de/*",
+	                        "*://www.goertz.de/*",
+        	                "*://www.hallhuber.com/*",
+        	                "*://www.hm.com/*",
+        	                "*://www.horchow.com/*",
+        	                "*://www.justfab.de/*",
+        	                "*://www.justfab.com/*",
+        	                "*://www.neimanmarcus.com/*",
+        	                "*://www.nelly.de/*",
+        	                "*://www.nelly.com/*",
+        	                "*://nelly.de/*",
+        	                "*://nelly.com/*",
+        	                "*://nlyman.de/*",
+        	                "*://nlyman.com/*",
+        	                "*://www.net-a-porter.com/*",
+        	                "*://shop.nordstrom.com/s/*",
+        	                "*://www.otto.de/*",
+	                        "*://www.roland-schuhe.de/*",
+        	                "*://www.uniqlo.de/*",
+        	                "*://www.uniqlo.co.uk/*",
+        	                "*://www.uniqlo.com/*",
+        	                "*://www.yoox.com/*",
+        	                "*://www.zalando.de/*",
+        	                "*://www.zappos.com/*",
+        	                "*://www.zara.com/*",
+				"http://www.evrybase.com/shop-companion"
+			],
+			"js": ["BabelExt.js", "jquery.min.js", "shop-companion.user.js"]
+		}
+	],
+	"icons": {
+		"48": "icon48.png",
+		"128": "icon128.png"
+	},
+	"permissions": [
+		// "history",
+		// "notifications",
+		"storage", // for preferences
+		"contextMenus",
+		"tabs"
+	]
+}
