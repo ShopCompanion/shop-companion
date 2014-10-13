@@ -48,7 +48,7 @@ Browser extension repositories:
 * [Greasy Fork](https://greasyfork.org/scripts/1678-shop-companion)
 * [OpenUserJS](https://openuserjs.org/scripts/ShopCompanion/Shop_Companion)
 * [Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/shop-companion/)
-* Google Chrome Extensions (coming up)
+* [Google Chrome Extensions](https://chrome.google.com/webstore/detail/shop-companion/jljcjkdjhgmblijiagkehdhfjglpllbm)
 
 Public code repository:
 
