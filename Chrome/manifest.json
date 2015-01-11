@@ -3,9 +3,9 @@
 	"version": "0.25",
 	"manifest_version": 2,
 	"description": "Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. More features coming up.",
-	"update_url": "http://www.evrybase.com/",
+	"homepage_url": "http://www.evrybase.com/",
 	"background": {
-		"persistent": false, // Google docs: Unless you absolutely need your background page to run all the time, prefer to use an event page. 
+		"persistent": false,
 		"scripts": ["background.js"]
 	},
 	"content_scripts": [
@@ -40,7 +40,6 @@
 	                        "*://www.deichmann.de/*",
 	                        "*://www.deichmann.com/*",
 	                        "*://www.dosenbach.ch/*",
-				// "*://www.fashionid.de/*",
 	                        "*://www.goertz.de/*",
         	                "*://www.hallhuber.com/*",
         	                "*://www.hm.com/*",
@@ -65,19 +64,20 @@
         	                "*://www.zalando.de/*",
         	                "*://www.zappos.com/*",
         	                "*://www.zara.com/*",
-				"http://www.evrybase.com/shop-companion"
+				"*://www.evrybase.com/shop-companion"
 			],
 			"js": ["BabelExt.js", "jquery.min.js", "shop-companion.user.js"]
 		}
 	],
 	"icons": {
+		"16": "icon16.png",
+		"32": "icon48.png",
 		"48": "icon48.png",
+		"50": "icon50.png",
 		"128": "icon128.png"
 	},
 	"permissions": [
-		// "history",
-		// "notifications",
-		"storage", // for preferences
+		"storage",
 		"contextMenus",
 		"tabs"
 	]

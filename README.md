@@ -7,13 +7,13 @@
 
 ### Description
 
-Get access to full-resolution/largest/xxl/best-size product images and videos on various shopping sites. Also, "bookmark" products into your own collections, while Evrybase will automatically store all associated  max-resolution product images for you. (And yet more features coming up.)
+Get full-resolution/largest/xxl/best-size product images and videos on various shopping sites. Also, "bookmark" products into your own collections, while Evrybase will automatically store all associated  max-resolution product images for you. (And yet more features coming up.)
 
 This script is available as [Firefox Add-On](https://addons.mozilla.org/en-US/firefox/addon/shop-companion/), [Chrome Extension](http://www.evrybase.com/shop-companion.crx) and as Greasemonkey Userscript.
 
 __Online-Shops the add-on currently supports:__
 * albamoda.de
-* amazon (non html5 versions)
+* amazon
 * asos
 * bata (European shops)
 * bergdorfgoodman.com
@@ -26,12 +26,15 @@ __Online-Shops the add-on currently supports:__
 * horchow.com
 * h&m
 * justfab
+* macy's
 * neimanmarcus.com
 * nelly
 * net-a-porter.com
 * nordstrom.com
 * otto.de (partial)
+* sarenza
 * uniqlo
+* walmart
 * yoox.com
 * zalando.de
 * zappos.com
