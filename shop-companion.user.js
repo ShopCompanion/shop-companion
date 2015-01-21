@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get full-resolution/largest/xxl/best-size product images and videos on various shopping sites. Bookmark products. More features coming up.
-// @version        0.26
-var version =      0.26;
+// @version        0.27
+var version =      0.27;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -1122,7 +1122,8 @@ function companion_node(elems){
 		whh.appendChild( login_link );
 
 		var login_link_help = document.createElement('span');
-		login_link_help.setAttribute("style", "padding-left: 20px; color: #555;");
+		login_link_help.setAttribute("style", "padding-left: 20px; color: #555; display: none;");
+		login_link_help.setAttribute("id", 'shopcompanion_login_help');
 		login_link_help.innerHTML = '(<a href="http://www.evrybase.com/about">what\'s that?</a>)';
 		whh.appendChild( login_link_help );
 
@@ -1232,6 +1233,7 @@ function whh_disable(not_authenticated){
 		$("#shopcompanion_have").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
 		$("#shopcompanion_had").unbind().css("color", "#ccc").removeAttr("href").css("display", "none");
 		$("#shopcompanion_login").css("display", "inline");
+		$("#shopcompanion_login_help").css("display", "inline");
 	}else{
 		debug(' whh_disable');
 		$("#shopcompanion_heart").unbind().css("color", "#ccc").removeAttr("href");
