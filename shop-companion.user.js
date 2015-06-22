@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get full-resolution/largest/xxl/best-size product images and videos on various shopping sites. Bookmark products. More features coming up.
-// @version        0.27
-var version =      0.27;
+// @version        0.28
+var version =      0.28;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -33,7 +33,7 @@ var version =      0.27;
 // @include        http://www.horchow.com/*
 // @include        http://www.justfab.tld/*
 // @include        http://*.macys.com/shop/product/*
-// @includewip     http://www.marksandspencer.tld/*
+// @include        http://www.marksandspencer.tld/*
 // @include        http://www.neimanmarcus.com/*
 // @include        http://www.nelly.tld/*
 // @include        http://nelly.tld/*
@@ -50,6 +50,7 @@ var version =      0.27;
 // @include        http://www.walmart.com/ip/*
 // @include        http://www.yoox.com/*
 // @include        http://www.zalando.de/*
+// @include        https://www.zalando.de/*
 // @include        http://www.zappos.com/*
 // @include        http://www.zara.com/*
 
@@ -303,7 +304,7 @@ if( location.href.match(/albamoda/) ){
 	}
 
 }else if( location.href.match(/asos/) ){
-	var meta_image = get_meta_name('og:image');
+	var meta_image = get_meta('og:image');
 	if(meta_image){
 		debug('asos product');
 
@@ -330,8 +331,13 @@ if( location.href.match(/albamoda/) ){
 				text: 'video'
 			});
 		}
-		
-		$('#content_product_images_box').append( companion_node(elems) );
+
+		// we need a wrapper div for font size
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "font-size: 1.4em;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$('#content_product_images_box').append( wrapper );
 	}else{
 		debug('asos non-product page');
 	}
@@ -380,44 +386,37 @@ if( location.href.match(/albamoda/) ){
 		debug(urls);
 		var i = 1;
 		for(var url in urls){
-			if( url.match(/^\/ca\//) ){
-				elems['images'].push({
-					url: 'http://'+ window.location.hostname + url,
-					text: 'i'+i
-				});
+			if( url.match(/\/ca\/\d/) ){
+				if( url.match(/\.mp4$/) ){
+					elems['images'].push({
+						url: url,
+						text: 'video'
+					});
+				}else{
+					elems['images'].push({
+						url: url,
+						text: 'i'+i
+					});
+				}
 				i++;
 			}
 		}
 
-		$('#prodPageCont table .images').append( companion_node(elems) );
+		if( $('#image-container .images').length > 0 ){ // neimanmarcus.com layout corner case
+			$('#image-container .images').append( companion_node(elems) );
+		}else{
+			$('#prodPageCont table .images').append( companion_node(elems) );
+		}
 	}else{
 		debug('bergdorf/neiman/horchow page');
 	}
 
 }else if( location.href.match(/bershka/) ){
-	if( $('#tallasdiv').length > 0 ){
+	if( $('#fixed-controls-wrapper .prodInfo').length > 0 ){
 		debug('bershka product');
 
-		var imagedivs = $("div[id^='superzoom_']").children();
-		for(var i=0; i < imagedivs.length; i++){
-			var link = $(imagedivs[i]).attr('rel');
-
-			elems['images'].push({
-				url: link,
-				text: 'i'+(i+1)
-			});
-
-			if(i > 5){
-				break;
-			}
-		}
-
-		// we need a wrapper div for alignment
-		var wrapper = document.createElement('div');
-		wrapper.setAttribute("style", "float: right; margin-right: 100px;");
-		wrapper.appendChild( companion_node(elems) );
-
-		$('#detail_minis').after( wrapper );
+		var active = window.setInterval(function(){ deferred_bershka(); }, 1500);
+		debug('timer installed');
 	}else{
 		debug('bershka page');
 	}
@@ -452,9 +451,10 @@ if( location.href.match(/albamoda/) ){
 		// bug: misses thumbs amended later on via JS
 		// bug: color/variant urls are not properly identified by url canonical
 		var li_array = $('.productthumbnails-list').children();
+		debug(li_array);
 		for(var i=0; i < li_array.length; i++){
 			elems['images'].push({
-				url: li_array[i].children[0].getAttribute('data-zoomurl'),
+				url: li_array[i].children[0].children[0].getAttribute('data-zoomurl'),
 				text: 'i'+ (i+1)
 			});
 		}
@@ -681,6 +681,17 @@ if( location.href.match(/albamoda/) ){
 
 	$('#bottomArea').prepend( wrapper );
 
+}else if( location.href.match(/marksandspencer/) ){
+	var meta_image = get_meta('og:image');
+	if(meta_image){
+		debug('m&s product');
+
+		var active = window.setInterval(function(){ deferred_mands(); }, 1500);
+		debug('timer installed');
+	}else{
+		debug('m&s page');
+	}
+
 }else if( location.href.match(/nelly|nlyman/) ){ // S7
 	var meta_image = get_meta('og:image');
 	if(meta_image){
@@ -848,12 +859,11 @@ if( location.href.match(/albamoda/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
 		debug('zalando product');
-
-		var images = $('#moreImagesList').children();
+		var images = $('.articleMedia_markupImage');
 
 		for(var i=0; i < images.length; i++){
-			var url = $(images[i]).find('a').attr('href');
-			debug(url);
+			var url = $(images[i]).attr('src');
+			url = url.replace('/detail/','/large/');
 
 			elems['images'].push({
 				url: url,
@@ -960,6 +970,67 @@ if( location.href.match(/albamoda/) ){
 
 } // ================ end of all else's =================
 
+function deferred_bershka(){
+	debug('deferred_bershka');
+	clearInterval(active);
+
+	var imagedivs = $(".prod-images").children();
+	debug(imagedivs);
+	for(var i=0; i < imagedivs.length; i++){
+		var link = $(imagedivs[i]).children[0].attr('ng-src');
+	debug(link);
+		elems['images'].push({
+			url: link,
+			text: 'i'+(i+1)
+		});
+
+		if(i > 5){
+			break;
+		}
+	}
+
+	$('#fixed-controls-wrapper .prodInfo').append( companion_node(elems) );
+}
+
+function deferred_mands(){ // S7
+	debug('deferred_mands');
+	clearInterval(active);
+
+	var li_array = $('#videoTarget #generateUniqueIdHere ul').children();
+	debug(li_array);
+	for(var i=0; i < li_array.length; i++){
+		debug(li_array[i]);
+		if( $( li_array[i] ).hasClass('zoomtext') ){
+			// next
+		}else if( $( li_array[i] ).hasClass('video') ){
+			var url = $( li_array[i].children[0] ).attr('data-video-player').match(/"mp4" : "([^"]+)",/);
+
+			elems['images'].push({
+				url: 'http://asset1.marksandspencer.com/is/content/'+ url[1],
+				text: 'video'
+			});
+		}else{
+			var url = $( li_array[i].children[0] ).attr('src');
+			if(url){
+				url = url.replace('_PROD_IMAGE_IPAD$', '_MAXI_ZOOM$');
+				url = url.replace('_PROD_IMAGE$', '_MAXI_ZOOM$');
+
+				elems['images'].push({
+					url: url,
+					text: 'i'+ i
+				});
+			}
+		}
+	}
+
+	// we need a wrapper div for font size
+	var wrapper = document.createElement('div');
+	wrapper.setAttribute("style", "font-size: 1.4em;");
+	wrapper.appendChild( companion_node(elems) );
+
+	$('#videoTarget').append( wrapper );
+}
+
 function deferred_otto(){
 	debug('deferred_otto');
 
@@ -989,13 +1060,20 @@ function deferred_uniqlo(){
 
 	// we need a wrapper div for alignment
 	var wrapper = document.createElement('div');
-	wrapper.setAttribute("style", "margin: 10px 0 0;");
+	wrapper.setAttribute("style", "clear: both; float: right;");
 	wrapper.appendChild( companion_node(elems) );
 
-	$('#prodDetail > .content').append( wrapper );
+	$('#content').append( wrapper );
 }
 
 // ================ end of deferred functions =================
+
+var charset = '';
+if(document.characterSet){
+	charset = '; charset=' + document.characterSet;
+}else if(document.charset){
+	charset = '; charset=' + document.charset;
+}
 
 function debug(){
 	if(0){
@@ -1121,10 +1199,10 @@ function companion_node(elems){
 		login_link.textContent = 'Please log in';
 		whh.appendChild( login_link );
 
-		var login_link_help = document.createElement('span');
+		var login_link_help = document.createElement('div');
 		login_link_help.setAttribute("style", "padding-left: 20px; color: #555; display: none;");
 		login_link_help.setAttribute("id", 'shopcompanion_login_help');
-		login_link_help.innerHTML = '(<a href="http://www.evrybase.com/about">what\'s that?</a>)';
+		login_link_help.innerHTML = '(<a href="http://www.evrybase.com/about" style="margin: 0;">what\'s that?</a>)';
 		whh.appendChild( login_link_help );
 
 		var heart = document.createElement('a');
@@ -1196,7 +1274,7 @@ function whh_check(data_ref){
 	//	type: "GET",
 		url: "http://www.evrybase.com/api/me/collectibles",
 		headers: { 'X-ShopCompanion': version },
-		contentType: "application/json; charset=utf-8",
+		contentType: "application/json" + charset,
 	//	dataType: "json",
 		xhrFields: { withCredentials: true },
 		data: data_ref
@@ -1265,7 +1343,7 @@ function whh_click(namespace,node){
 			type: "DELETE",
 			url: "http://www.evrybase.com/api/me/collectibles/" + collectible_id,
 			headers: { 'X-ShopCompanion': version },
-			contentType: "application/json; charset=utf-8",
+			contentType: "application/json"+ charset,
 		//	dataType: "json",
 			xhrFields: { withCredentials: true },
 		//	data: { id:  }
@@ -1275,7 +1353,7 @@ function whh_click(namespace,node){
 			type: "POST",
 			url: "http://www.evrybase.com/api/me/collectibles",
 			headers: { 'X-ShopCompanion': version },
-			contentType: "application/json; charset=utf-8",
+			contentType: "application/json"+ charset,
 			dataType: "json",
 			xhrFields: { withCredentials: true },
 			data: JSON.stringify({ namespace: namespace, props: elems })

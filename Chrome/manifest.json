@@ -1,6 +1,6 @@
 {
 	"name": "Shop Companion",
-	"version": "0.27",
+	"version": "0.28",
 	"manifest_version": 2,
 	"description": "Get full-resolution/largest/xxl/best-size product images and videos on various shopping sites. Bookmark products.",
 	"homepage_url": "http://www.evrybase.com/",
@@ -47,6 +47,7 @@
         	                "*://www.justfab.de/*",
         	                "*://www.justfab.com/*",
 				"*://*.macys.com/shop/product/*",
+        	                "*://www.marksandspencer.com/*",
         	                "*://www.neimanmarcus.com/*",
         	                "*://www.nelly.de/*",
         	                "*://www.nelly.com/*",

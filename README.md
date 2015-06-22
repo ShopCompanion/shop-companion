@@ -29,6 +29,7 @@ __Online-Shops the add-on currently supports:__
 * h&m
 * justfab
 * macy's
+* marksandspencer.com
 * neimanmarcus.com
 * nelly
 * net-a-porter.com
@@ -64,3 +65,7 @@ As a cross-plattform, Greasemonkey-style userscript, ShopCompanion uses wrappers
 ### Author
 
 This add-on has been released by [evrybase.com](http://www.evrybase.com/). Evrybase's idea is to gather product metadata. As a start, we've released this browser-extension. Building on that, evrybase will eventually grow into a web-application where users are able to curate products they love and exchange and share information about them. 
+
+### License
+
+GNU GPL v3
