@@ -2,14 +2,16 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get full-resolution/largest/xxl/best-size product images and videos on various shopping sites. Bookmark products. More features coming up.
-// @version        0.28
-var version =      0.28;
+// @version        0.29
+var version =      0.29;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
 // @icon           data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAO5AAADuQHRCeUsAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAANVQTFRFDwAA8PDw8PDw8PDw8PDw8PDw8PDw8vLy9PT09PT09PT09PT09PT09vb29vb29fX19fX19vb29vb2+Pj4+Pj4+fn5+fn5+Pj4+Pj4+fn5+fn5+fn5+vr6+vr6+vr6+vr6+vr6+vr6+/v7+/v7+/v7+/v7+/v7/Pz8+/v7+/v7+/v7+/v7/Pz8/Pz8/Pz8/Pz8/f39AAAAHh4eZWVla2trbW1tcXFxhYWFjo6OlpaWm5ubqamprKyswMDAwsLCxMTEzMzMzc3N19fX4uLi/f39/v7+////B68tFQAAADF0Uk5TAAMEBQcICQkcHR4fIDg5TVFbXYiKj5KXmJiam6+xvL/AwcPGz9bX19jc3uPj5efo6eeeGU4AAADoSURBVDjLlZPnFoIwDEbjXrj3xL23uPfK+z+SoNATUNrj/Zlcekr6BYDhiRcrzcGgWSkmvPBNKD9ExqggWdq+1ARNTFM+2pdqiA/KE7FKDol01W82c8JVLXTCRj/Q1g5dzwgXrdIKfvouGXVhuzO4v0uy+y0k0RBuaCGp9f1je2HsV4Uc2guYBXD0eULfCVHkCRiDNF/IQIkvlKFOhOVK58yEBrSIwDgwoWcSForOiQh1/h0a4ksKf1M4KOGohY8lfm5hYEjkFGPUqxON3K/Q7mlo9dgfFMLRFPvP4lipSv+snnh57df/BbDVyC03lcMOAAAAAElFTkSuQmCC
 // @license        GNU GPL License
 // @grant          GM_addStyle
+// @grant          GM_setValue 
+// @grant          GM_getValue
 
 // @include        http://*.albamoda.tld/*
 // @includewip     http://www.aldoshoes.com/*
@@ -87,6 +89,7 @@ var version =      0.28;
 'use strict';
 
 if(typeof GM_getValue === "function"){	// we're under a GM compatibility layer
+	debug(" using GreaseMonkey storage");
 	function storage_set(key,value, callback) { // cb is optional on set
 		GM_setValue(key,value);
 		callback({ "status": true, "key": key, "value": value }); // storage API compatible arg object
@@ -97,6 +100,7 @@ if(typeof GM_getValue === "function"){	// we're under a GM compatibility layer
 		callback({ "status": true, "key": key, "value": value });
 	}
 }else{ // we're on Chrome+BabelExt
+	debug(" using BabelExt storage");
 	// we need to ask for 'storage'-permission in our Chrome manifest.json; which we do but BabelExt doesn't do it out-of-the-box
 	// now, that we have that, we wrap the storage api with our own callback-expecting function - which degrades to "no callback expected"
 	// when wrapped by Scriptify+Firefox (see above)
@@ -238,7 +242,7 @@ if( location.href.match(/albamoda/) ){
 						}
 
 						json = line.match(/'initial':\s(.+)/);
-						json[1] = json[1].substring(0,json[1].length - 3);
+						json[1] = json[1].substring(0,json[1].length - 2);
 						debug('json',json[1]);
 					//	break;
 					}else if( items[i].innerHTML.indexOf('.mp4",') >= 1 ){
@@ -254,6 +258,7 @@ if( location.href.match(/albamoda/) ){
 
 			if(json && json[1]){
 				var array = $.parseJSON(json[1]);
+
 				debug(array);
 				for(var i = 0; i < array.length; i++){
 					var url;
@@ -383,6 +388,23 @@ if( location.href.match(/albamoda/) ){
 			}
 			urls[url] = 1;
 		}
+
+		// there's a second div now, having the video 
+		var tags = $(".product-thumbnails > .list-inline img");
+		for(var i=0; i < tags.length; i++){
+			var url;
+			var image_url = tags[i].getAttribute('data-zoom-url');
+			if( image_url ){
+				url = image_url;
+			}else{
+				var video_url = tags[i].getAttribute('data-video-url');
+				if( video_url ){
+					url = location.protocol +'//'+ location.host + video_url;
+				}
+			}
+			urls[url] = 1;
+		}
+
 		debug(urls);
 		var i = 1;
 		for(var url in urls){
@@ -1192,7 +1214,7 @@ function companion_node(elems){
 		whh.appendChild( span );
 
 		var login_link = document.createElement('a');
-		login_link.setAttribute("href", 'http://www.evrybase.com/login');
+		login_link.setAttribute("href", 'https://www.evrybase.com/login');
 		login_link.setAttribute("id", 'shopcompanion_login');
 		login_link.setAttribute("style", "padding: 5px; border-left: 1px solid #ccc; width:80%; display: none;");
 		login_link.setAttribute("title", "...to bookmark products: into lists 'Heart it', 'Want it', 'Have it', 'Had it'");
@@ -1272,7 +1294,7 @@ function companion_node(elems){
 function whh_check(data_ref){
 	var xhr = $.ajax({
 	//	type: "GET",
-		url: "http://www.evrybase.com/api/me/collectibles",
+		url: "//www.evrybase.com/api/me/collectibles",
 		headers: { 'X-ShopCompanion': version },
 		contentType: "application/json" + charset,
 	//	dataType: "json",
@@ -1341,7 +1363,7 @@ function whh_click(namespace,node){
 	if( collectible_id ){
 		var xhr = $.ajax({
 			type: "DELETE",
-			url: "http://www.evrybase.com/api/me/collectibles/" + collectible_id,
+			url: "//www.evrybase.com/api/me/collectibles/" + collectible_id,
 			headers: { 'X-ShopCompanion': version },
 			contentType: "application/json"+ charset,
 		//	dataType: "json",
@@ -1351,7 +1373,7 @@ function whh_click(namespace,node){
 	}else{
 		var xhr = $.ajax({
 			type: "POST",
-			url: "http://www.evrybase.com/api/me/collectibles",
+			url: "//www.evrybase.com/api/me/collectibles",
 			headers: { 'X-ShopCompanion': version },
 			contentType: "application/json"+ charset,
 			dataType: "json",
