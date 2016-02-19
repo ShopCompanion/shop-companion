@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get full-resolution/largest/xxl/best-size product images and videos on various shopping sites. Bookmark products. More features coming up.
-// @version        0.29
-var version =      0.29;
+// @version        0.30
+var version =      0.30;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -19,30 +19,34 @@ var version =      0.29;
 // @include        http://www.asos.com/*
 // @includewip     http://www.barratts.co.uk/*
 // @include        http://www.bata.tld/*
-// @include         http://nl.bata.eu/*
+// @include        http://nl.bata.eu/*
 // @include        http://www.batashoes.be/*
 // @include        http://www.bergdorfgoodman.com/*
 // @include        http://www.bershka.com/*
-// @includewip     http://*.bloomingdales.com/shop/product/*
+// @include        http://*.bloomingdales.com/shop/product/*
 // @include       https://www.breuninger.com/*
 // @include        http://www.buffalo-shop.de/*
+// @include        http://www.buffalo-boots.com/*
 // @include        http://buffalo-shop.de/*
 // @include        http://www.deichmann.tld/*
 // @includewip     http://www.fashionid.de/*
 // @include        http://www.goertz.de/*
+// @include        https://www.goertz.de/*
 // @include        http://www.hallhuber.com/*
 // @include        http://www.hm.com/*
 // @include        http://www.horchow.com/*
 // @include        http://www.justfab.tld/*
 // @include        http://*.macys.com/shop/product/*
 // @include        http://www.marksandspencer.tld/*
+// @include        http://www.mirapodo.de/*
 // @include        http://www.neimanmarcus.com/*
 // @include        http://www.nelly.tld/*
 // @include        http://nelly.tld/*
 // @include        http://nlyman.tld/*
 // @include        http://www.net-a-porter.com/*
 // @include        http://shop.nordstrom.com/s/*
-// @includewip     http://www.office.co.uk/*
+// @include        http://www.office.co.uk/*
+// @include        http://www.officelondon.de/*
 // @include        http://www.otto.de/*
 // @include       https://www.otto.de/*
 // @include        http://www.roland-schuhe.de/*
@@ -295,7 +299,6 @@ if( location.href.match(/albamoda/) ){
 			var wrapper = document.createElement('div');
 			wrapper.setAttribute("style", "position: relative; width: 270px; left: -25px; font-size: 0.9em;");
 			wrapper.appendChild( companion_node(elems) );
-
 			$target.append( wrapper );
 		}else{
 			$target = $("#aboutThisItem_feature_div");
@@ -443,6 +446,18 @@ if( location.href.match(/albamoda/) ){
 		debug('bershka page');
 	}
 
+}else if( location.href.match(/bloomingdales\./) ){ // S7
+	var check = document.getElementById("pdp_main");
+
+	if( check ){
+		debug('bloomingdales product');
+
+		var active = window.setInterval(function(){ deferred_bloomingdales(); }, 1500);
+		debug('timer installed');
+	}else{
+		debug('bloomingdales page');
+	}
+
 }else if( location.href.match(/breuninger/) ){
 	var meta_image = get_meta('og:image');
 	if(meta_image){
@@ -465,7 +480,7 @@ if( location.href.match(/albamoda/) ){
 		debug('breuninger page');
 	}
 
-}else if( location.href.match(/buffalo-shop/) ){	// S7
+}else if( location.href.match(/buffalo-shop|buffalo-boots/) ){	// S7
 	var meta_image = get_meta('og:image');
 	if(meta_image){
 		debug('buffalo product');
@@ -527,32 +542,34 @@ if( location.href.match(/albamoda/) ){
 
 		$('.tabContent .content-1').prepend( wrapper );
 	}else{
-		// debug('deichmann page');
+		debug('deichmann page');
 	}
 
 }else if( location.href.match(/goertz/) ){ // todo: unreliable
-	var id = document.getElementById("zoomProductName").innerHTML;
+	var check = document.getElementById("BVRRSummaryContainer"); // Bazaarvoice Ratings & Reviews Inline Rating widget
 
-	if( id ){
+	if( check ){
 		debug('goertz product page');
 
-		elems['images'] = [
-			{ url: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products', text: 'i1' },	/* tail 2 seems highest resolution */
-			{ url: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products1', text: 'i2' },
-			{ url: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products2', text: 'i3' },
-			{ url: 'http://i.bilder-goertz.de/is/image/goertz/original/newzoom2_40_'+id+'_000_products3', text: 'i4' },
-		];
+		var li_array = $('.pdp-gallery .pdp-slider').children();
 
-	/*
-		document.getElementById("productActions").innerHTML += '<br>360: ';
-		for(var i=1;i<=24;i++){
-			document.getElementById("productActions").innerHTML += '<a href="http://demandware.edgesuite.net/aack_prd/on/demandware.static/Sites-Goertz-Site/Sites-goertz-DE-Catalog/de_DE/v1281686171187/products/360/'+id+'_'+i+'.jpg">'+i+'</a> ';
+		for(var i = 0; i < li_array.length; i++){
+			var url = li_array[i].getAttribute('data-big-image');
+
+			elems['images'].push({
+				url: url,
+				text: 'i'+ (i+1)
+			});
 		}
-	*/
 
-		$('#productSets').prepend( companion_node(elems) );
+		// we need a wrapper div for alignment
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "float: right; margin-right: 15px; font-size: 0.8em;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$('#page .content .row').first().append( wrapper );
 	}else{
-		// debug('goertz page');
+		debug('goertz page');
 	}
 
 }else if( location.href.match(/fashionid/) ){
@@ -714,6 +731,33 @@ if( location.href.match(/albamoda/) ){
 		debug('m&s page');
 	}
 
+}else if( location.href.match(/mirapodo/) ){ // S7
+	var check = document.getElementById("displayStarRating");
+
+	if(check){
+		debug('mirapodo product');
+
+		var li_array = $('#alternateviews ul').children();
+
+		for(var i=0; i < li_array.length; i++){
+			var url = li_array[i].getAttribute("data-image").replace('$xl_new$', '$xxl$');;
+
+			elems['images'].push({
+				url: url,
+				text: "i"+(i+1)
+			});
+		}
+
+		// we need a wrapper div for alignment
+		var wrapper = document.createElement('div');
+		wrapper.setAttribute("style", "clear: both; margin-top: 50px;");
+		wrapper.appendChild( companion_node(elems) );
+
+		$('#content').find(".productInfo").append( wrapper );
+	}else{
+		debug('mirapodo page');
+	}
+
 }else if( location.href.match(/nelly|nlyman/) ){ // S7
 	var meta_image = get_meta('og:image');
 	if(meta_image){
@@ -776,22 +820,24 @@ if( location.href.match(/albamoda/) ){
 
 	$('#product-accordion').before( wrapper );
 
-}else if( location.href.match(/otto/) ){	// incomplete, (only first image is on static page); also: not catching variation updates
-	var meta_image = get_meta_name('og:image');
-	if(meta_image){
+}else if( location.href.match(/office/) ){
+	var check = document.getElementById("BVRRSummaryContainer"); // Bazaarvoice Ratings & Reviews Inline Rating widget
+
+	if( check ){
+		debug('office product page');
+
+	}else{
+		debug('office page');
+	}
+
+}else if( location.href.match(/otto/) ){
+	var check = document.getElementById("detailview");
+
+	if(check){
 		debug('otto product');
 
-		var id = meta_image.match(/(\d+)\.jpg/);
-
-		elems['images'] = [
-			{ url: 'https://images.otto.de/is/image/mmo/'+ id[1] +'?scl=1', text: 'i1' },
-		];
-
-	//	var active = window.setInterval(function(){ deferred_otto(); }, 1000);
-	//	debug('timer installed');
-
-		elems['disable_whh'] = 1; // xhr is misbehaving; todo
-		$('.description').append( companion_node(elems) );
+		var active = window.setInterval(function(){ deferred_otto(); }, 1200);
+		debug('timer installed');
 	}else{
 		debug('otto page');
 	}
@@ -1014,6 +1060,25 @@ function deferred_bershka(){
 	$('#fixed-controls-wrapper .prodInfo').append( companion_node(elems) );
 }
 
+function deferred_bloomingdales(){ // S7
+	debug('deferred_bershka');
+	clearInterval(active);
+
+	var imagedivs = $(".pdp_alt_image_link");
+	debug(imagedivs);
+
+	for(var i=0; i < imagedivs.length; i++){
+		var link = $(imagedivs[i]).children[0].attr('src').replace('?$2014_PDP_ALT_FASHION$', '?wid=1200&amp;qlt=90,0&amp;layer=comp&amp;op_sharpen=0&amp;resMode=sharp2&amp;op_usm=0.7,1.0,0.5,0&amp;fmt=jpeg');
+
+		elems['images'].push({
+			url: link,
+			text: 'i'+(i+1)
+		});
+	}
+
+	$("#pdpContainer").find(".pdp_right").append( companion_node(elems) );
+}
+
 function deferred_mands(){ // S7
 	debug('deferred_mands');
 	clearInterval(active);
@@ -1055,8 +1120,20 @@ function deferred_mands(){ // S7
 
 function deferred_otto(){
 	debug('deferred_otto');
-
 	clearInterval(active);
+
+	var li_array = $('#window ul').children();
+
+	for(var i=0; i < li_array.length; i++){
+		var id = li_array[i].children[0].getAttribute("data-image-id");
+
+		elems['images'].push({
+			url: "https://images.otto.de/is/image/mmo/"+ id +"?hei=1200&qlt=75",
+			text: "i"+(i+1)
+		});
+	}
+
+	$('.description').append( companion_node(elems) );
 }
 
 function deferred_uniqlo(){
@@ -1202,6 +1279,7 @@ function companion_node(elems){
 	}
 
 	if( !elems['disable_whh'] ){
+
 	  storage_get('whh.disabled', function(setting){
 	    if(setting && setting.value != "true"){
 		debug('adding whh');
@@ -1367,8 +1445,8 @@ function whh_click(namespace,node){
 			headers: { 'X-ShopCompanion': version },
 			contentType: "application/json"+ charset,
 		//	dataType: "json",
-			xhrFields: { withCredentials: true },
-		//	data: { id:  }
+			xhrFields: { withCredentials: true }
+		//	,data: { id:  }
 		});
 	}else{
 		var xhr = $.ajax({
