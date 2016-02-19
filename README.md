@@ -11,7 +11,7 @@ Get full-resolution/largest/xxl/best-size product images and videos on various s
 
 Also, "bookmark" products into your own collections with a simple click - while Evrybase will automatically store all associated max-resolution product images for you. (And yet more features coming up.)
 
-As official add-on/extension portal versions may lag behind, "nightly builds" after version updates are usually made available directly from evrybase.com: as [Firefox .xpi](http://www.evrybase.com/shop-companion.xpi) and [Chrome .crx](http://www.evrybase.com/shop-companion.crx).
+As official add-on/extension portal versions may lag behind, "nightly builds" after version updates are usually made available directly from evrybase.com: as [Firefox .xpi](http://www.evrybase.com/shop-companion.xpi) (currently unsigned) and [Chrome .crx](http://www.evrybase.com/shop-companion.crx).
 
 __Online-Shops the add-on currently supports:__
 * albamoda.de
@@ -19,9 +19,10 @@ __Online-Shops the add-on currently supports:__
 * asos
 * bata (European shops)
 * bergdorfgoodman.com
+* bloomingdales
 * bershka
 * breuninger
-* buffalo-shop.de
+* buffalo
 * deichmann
 * goertz.de
 * hallhuber
@@ -30,11 +31,12 @@ __Online-Shops the add-on currently supports:__
 * justfab
 * macy's
 * marksandspencer.com
+* mirapodo.de
 * neimanmarcus.com
 * nelly
 * net-a-porter.com
 * nordstrom.com
-* otto.de (partial)
+* otto.de
 * sarenza
 * uniqlo
 * walmart
