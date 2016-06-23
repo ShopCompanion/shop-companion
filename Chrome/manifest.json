@@ -1,6 +1,6 @@
 {
 	"name": "Shop Companion",
-	"version": "0.30",
+	"version": "0.31",
 	"manifest_version": 2,
 	"description": "Get full-resolution/largest/xxl/best-size product images and videos on various shopping sites. Bookmark products.",
 	"homepage_url": "http://www.evrybase.com/",
@@ -35,6 +35,9 @@
         	                "*://www.bershka.com/*",
            	                "*://*.bloomingdales.com/shop/product/*",
 	                        "*://www.breuninger.com/*",
+        	                "*://www.buffalo.de/*",
+        	                "*://www.buffalo.at/*",
+        	                "*://www.buffalo.fr/*",
         	                "*://www.buffalo-shop.de/*",
                                 "*://www.buffalo-boots.com/*",
         	                "*://buffalo-shop.de/*",

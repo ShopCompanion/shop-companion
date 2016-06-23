@@ -2,8 +2,8 @@
 // @name           Shop Companion
 // @namespace      http://www.evrybase.com/addon
 // @description    Get full-resolution/largest/xxl/best-size product images and videos on various shopping sites. Bookmark products. More features coming up.
-// @version        0.30
-var version =      0.30;
+// @version        0.31
+var version =      0.31;
 // @author         ShopCompanion
 // @homepage       http://www.evrybase.com/
 // @copyright      2014+, EVRYBASE (http://www.evrybase.com/)
@@ -16,6 +16,7 @@ var version =      0.30;
 // @include        http://*.albamoda.tld/*
 // @includewip     http://www.aldoshoes.com/*
 // @include        http://www.amazon.tld/*
+// @include       https://www.amazon.tld/*
 // @include        http://www.asos.com/*
 // @includewip     http://www.barratts.co.uk/*
 // @include        http://www.bata.tld/*
@@ -25,8 +26,12 @@ var version =      0.30;
 // @include        http://www.bershka.com/*
 // @include        http://*.bloomingdales.com/shop/product/*
 // @include       https://www.breuninger.com/*
-// @include        http://www.buffalo-shop.de/*
+// @includeretired http://www.buffalo-shop.de/*
+// @include       https://www.buffalo.de/*
+// @include       https://www.buffalo.at/*
+// @include       https://www.buffalo.fr/*
 // @include        http://www.buffalo-boots.com/*
+// @include       https://www.buffalo-boots.com/*
 // @include        http://buffalo-shop.de/*
 // @include        http://www.deichmann.tld/*
 // @includewip     http://www.fashionid.de/*
@@ -239,15 +244,16 @@ if( location.href.match(/albamoda/) ){
 
 						// debug('lines: ',lines);
 						var line;
-						for(var l = 50; l < lines.length; l++){
+						for(var l = 0; l < lines.length; l++){
 							if( lines[l].match(/colorImages/) ){
 								line = lines[l];
+								break;
 							}
 						}
 
 						json = line.match(/'initial':\s(.+)/);
 						json[1] = json[1].substring(0,json[1].length - 2);
-						debug('json',json[1]);
+						// debug('json',json[1]);
 					//	break;
 					}else if( items[i].innerHTML.indexOf('.mp4",') >= 1 ){
 						// debug("found video");
@@ -480,29 +486,35 @@ if( location.href.match(/albamoda/) ){
 		debug('breuninger page');
 	}
 
-}else if( location.href.match(/buffalo-shop|buffalo-boots/) ){	// S7
+}else if( location.href.match(/buffalo\.|buffalo-boots/) ){	// S7
 	var meta_image = get_meta('og:image');
-	if(meta_image){
+	if(meta_image && ! meta_image.match(/logo\.jpg/) ){
 		debug('buffalo product');
 
 		// bug: misses thumbs amended later on via JS
 		// bug: color/variant urls are not properly identified by url canonical
-		var li_array = $('.productthumbnails-list').children();
-		debug(li_array);
+
+		var li_array = $('.item a');
+		// debug(li_array);
 		for(var i=0; i < li_array.length; i++){
-			elems['images'].push({
-				url: li_array[i].children[0].children[0].getAttribute('data-zoomurl'),
-				text: 'i'+ (i+1)
-			});
+			var url = li_array[i].getAttribute('data-zoom-image');
+			if(url){
+				elems['images'].push({
+					url: url.replace(/_1100/g, '_1600'),
+					text: 'i'+ (i+1)
+				});
+			}
 		}
+
+		elems['title'] = $('h1.articlename').text();
 
 		// we need a wrapper div for alignment
 		var wrapper = document.createElement('div');
-		wrapper.setAttribute("style", "margin-left: 650px; padding-top: 10px; font-family: Helvetica, Arial, sans-serif; font-size: 1.1em;");
+		wrapper.setAttribute("style", "padding-top: 10px; font-family: Helvetica, Arial, sans-serif; font-size: 0.9em;");
 		wrapper.appendChild( companion_node(elems) );
 
 		// bug: less than ideal location, with no room to grow
-		$('#content').prepend( wrapper );
+		$( wrapper ).insertAfter(".sharing");
 	}else{
 		debug('buffalo page');
 	}
@@ -513,25 +525,28 @@ if( location.href.match(/albamoda/) ){
 
 		var prod_shop_id = $('#checkedProductCode').attr('value');
 
+
 		if( location.href.match(/roland/) ){
 			prod_shop_id = prod_shop_id.replace(/^0+100/, ''); // roland ids start with 100.. after zeropadding
 			debug(prod_shop_id);
 
-			// http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--1234_PS1.jpg
+			// http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--1234_PS.jpg - good
+			// http://deichmann.scene7.com/asset/deichmann/p_detail_zoom/--1234_PS.png?defaultImage=default_rol - best
 			elems['images'] = [
-				{ url: 'http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--'+ prod_shop_id +'_PS.jpg', text: 'i1' },
-				{ url: 'http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--'+ prod_shop_id +'_PS1.jpg', text: 'i2' },
-				{ url: 'http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--'+ prod_shop_id +'_PS2.jpg', text: 'i3' },
+				{ url: 'http://deichmann.scene7.com/asset/deichmann/p_detail_zoom/--'+ prod_shop_id +'_PS.png', text: 'i1' },
+				{ url: 'http://deichmann.scene7.com/asset/deichmann/p_detail_zoom/--'+ prod_shop_id +'_PS1.png', text: 'i2' },
+				{ url: 'http://deichmann.scene7.com/asset/deichmann/p_detail_zoom/--'+ prod_shop_id +'_PS2.png', text: 'i3' },
 			];
 		}else{
 			prod_shop_id = prod_shop_id.replace(/^0+/, '');
 			debug(prod_shop_id);
 
-			// alt: http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--1234_P.png
+			// http://deichmann.scene7.com/asset/deichmann/t_product/p_100/--1234_PS1.jpg - good
+			// http://deichmann.scene7.com/asset/deichmann/p_detail_zoom/12345_P.png - best
 			elems['images'] = [
-				{ url: 'http://deichmann.scene7.com/is/image/deichmann/'+ prod_shop_id +'_P', text: 'i1' },
-				{ url: 'http://deichmann.scene7.com/is/image/deichmann/'+ prod_shop_id +'_P1', text: 'i2' },
-				{ url: 'http://deichmann.scene7.com/is/image/deichmann/'+ prod_shop_id +'_P2', text: 'i3' },
+				{ url: 'http://deichmann.scene7.com/asset/deichmann/p_detail_zoom/'+ prod_shop_id +'_P.png', text: 'i1' },
+				{ url: 'http://deichmann.scene7.com/asset/deichmann/p_detail_zoom/'+ prod_shop_id +'_P1.png', text: 'i2' },
+				{ url: 'http://deichmann.scene7.com/asset/deichmann/p_detail_zoom/'+ prod_shop_id +'_P2.png', text: 'i3' },
 			];
 		}
 
